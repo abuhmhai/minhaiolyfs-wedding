@@ -1,14 +1,6 @@
 import { NextResponse } from 'next/server';
-import mysql from 'mysql2/promise';
 import bcrypt from 'bcryptjs';
-
-// MySQL connection configuration
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'nhungtrang_wedding',
-};
+import { prisma } from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
@@ -22,33 +14,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Connect to MySQL
-    const connection = await mysql.createConnection(dbConfig);
-
     // Check if email already exists
-    const [existingUsers] = await connection.execute(
-      'SELECT id FROM users WHERE email = ?',
-      [email]
-    );
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
 
-    if (Array.isArray(existingUsers) && existingUsers.length > 0) {
-      await connection.end();
+    if (existingUser) {
       return NextResponse.json(
         { message: 'Email đã được sử dụng' },
         { status: 400 }
       );
     }
 
-    // Insert new user
-    await connection.execute(
-      'INSERT INTO users (email, password, full_name, phone) VALUES (?, ?, ?, ?)',
-      [email, hashedPassword, fullName, phone]
-    );
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    await connection.end();
+    // Create new user
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        fullName,
+        phone,
+      },
+    });
 
     return NextResponse.json(
       { message: 'Đăng ký thành công' },

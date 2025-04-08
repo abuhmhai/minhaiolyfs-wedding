@@ -37,6 +37,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverActions: true,
+    serverComponents: true,
+    webpackBuildWorker: true,
+  },
 };
 
 module.exports = nextConfig;

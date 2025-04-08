@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { verifyToken } from '@/utils/jwt';
 import { cookies } from 'next/headers';
 
-export async function GET() {
+export async function PUT(request: Request) {
   try {
     const cookieStore = await cookies();
     const token = cookieStore.get('token')?.value;
@@ -17,9 +17,16 @@ export async function GET() {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
-    // Get user information
-    const user = await prisma.user.findUnique({
+    // Get request body
+    const { fullName, email } = await request.json();
+
+    // Update user information
+    const user = await prisma.user.update({
       where: { id: payload.id },
+      data: {
+        fullName,
+        email,
+      },
       select: {
         id: true,
         email: true,
@@ -28,15 +35,11 @@ export async function GET() {
       },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
     return NextResponse.json({ user });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('Profile update error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to update profile' },
       { status: 500 }
     );
   }

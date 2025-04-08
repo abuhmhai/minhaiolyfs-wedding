@@ -40,13 +40,13 @@ const Footer = () => {
                 <Link href="/" className="hover:text-gray-900">Giấy phép kinh doanh số: 0313365584</Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-gray-900">do sở kế hoạch đầu tư cấp ngày: 23/07/2015</Link>
+                <Link href="/" className="hover:text-gray-900">do sở kế hoạch đầu tư cấp ngày: 23/07/2024</Link>
               </li>
               <li>
                 <Link href="/" className="hover:text-gray-900">EMAIL: info@nhungtrangwedding.com</Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-gray-900">ĐỊA CHỈ: 24 Hoa Cúc, P7, Phú Nhuận, HCM</Link>
+                <Link href="/" className="hover:text-gray-900">ĐỊA CHỈ: HANOI</Link>
               </li>
             </ul>
           </div>
@@ -108,7 +108,7 @@ const Footer = () => {
       <div className="bg-zinc-600 text-white py-4">
         <div className="container mx-auto px-4 text-center text-xs">
           <p className="flex items-center justify-center space-x-2">
-            <span>Copyright 2011 NHUNGTRANG WEDDING. All rights reserved |</span>
+            <span>Copyright 2025 NHUNGTRANG WEDDING. All rights reserved |</span>
             <Link href="/pages/about-us" className="hover:underline">Tầm nhìn của NHUNGTRANG</Link>
             <span>|</span>
             <Link href="/pages/nhung-cau-hoi-thuong-gap" className="hover:underline">FAQ</Link>

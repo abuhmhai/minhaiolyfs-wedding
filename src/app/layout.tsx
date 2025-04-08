@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
   title: 'NHUNGTRANG WEDDING STORE',
@@ -25,6 +26,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

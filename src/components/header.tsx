@@ -5,13 +5,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, ShoppingBag, Menu, X } from 'lucide-react';
-import UserDropdown from './user-dropdown';
+import { Search, ShoppingBag, Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
-  const [user, setUser] = useState<{ fullName: string; email: string } | null>(null);
+  const [user, setUser] = useState<{ fullName: string; email: string; role: string } | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -23,12 +28,22 @@ const Header = () => {
           setUser(userData);
         }
       } catch (error) {
-        console.error('Auth check error:', error);
+        console.error('Auth check failed:', error);
       }
     };
 
     checkAuth();
   }, []);
+
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      setUser(null);
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -49,7 +64,40 @@ const Header = () => {
         </div>
         <div className="flex items-center space-x-2">
           {user ? (
-            <UserDropdown user={user} />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-white hover:text-gray-200">
+                  <User className="h-4 w-4 mr-2" />
+                  {user.fullName}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <Link href="/account/profile" className="flex items-center w-full">
+                    <User className="h-4 w-4 mr-2" />
+                    Thông tin tài khoản
+                  </Link>
+                </DropdownMenuItem>
+                {user.role === 'admin' && (
+                  <DropdownMenuItem>
+                    <Link href="/admin/products" className="flex items-center w-full">
+                      <ShoppingBag className="h-4 w-4 mr-2" />
+                      Quản lý sản phẩm
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem>
+                  <Link href="/cart" className="flex items-center w-full">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Giỏ hàng
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Đăng xuất
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Link href="/account/register" className="hover:underline">

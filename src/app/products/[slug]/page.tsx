@@ -5,13 +5,12 @@ type Props = {
   params: { slug: string };
 };
 
-export const generateMetadata = ({ params }: Props): Metadata => {
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
   return {
-    title: `${params.slug} | NHUNGTRANG WEDDING STORE`,
-    description: 'Wedding dress and Ao dai from NHUNGTRANG WEDDING.'
+    title: `Product ${params.slug}`,
   };
 };
 
-export default function ProductPage({ params }: Props) {
+export default async function ProductPage({ params }: Props) {
   return <ProductDetail slug={params.slug} />;
 }
