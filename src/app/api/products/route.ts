@@ -7,21 +7,41 @@ import { authOptions } from '@/lib/auth';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
+    const categorySlug = searchParams.get('category');
     const search = searchParams.get('search');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '12');
     const skip = (page - 1) * limit;
 
-    const where = {
-      ...(category ? { categoryId: parseInt(category) } : {}),
-      ...(search ? {
+    let where = {};
+
+    if (categorySlug) {
+      const category = await prisma.category.findUnique({
+        where: { slug: categorySlug }
+      });
+
+      if (!category) {
+        return NextResponse.json({
+          products: [],
+          total: 0,
+          pages: 0
+        });
+      }
+
+      where = {
+        categoryId: category.id
+      };
+    }
+
+    if (search) {
+      where = {
+        ...where,
         OR: [
           { name: { contains: search } },
           { description: { contains: search } }
         ]
-      } : {})
-    };
+      };
+    }
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -68,23 +88,32 @@ export async function POST(request: Request) {
       name,
       description,
       price,
-      categoryId,
+      category: categorySlug,
       color,
-      size,
       images,
-      isAvailable = true
     } = data;
+
+    // Find the category by slug
+    const category = await prisma.category.findUnique({
+      where: { slug: categorySlug }
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: 'Category not found' },
+        { status: 400 }
+      );
+    }
 
     const product = await prisma.product.create({
       data: {
         name,
         description,
         price: parseFloat(price),
-        categoryId: parseInt(categoryId),
+        categoryId: category.id,
         color,
-        size,
-        isAvailable,
-        slug: name.toLowerCase().replace(/\s+/g, '-'),
+        status: 'IN_STOCK',
+        slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
         images: {
           create: images.map((url: string) => ({ url }))
         }

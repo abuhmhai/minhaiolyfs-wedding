@@ -74,7 +74,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link href={`/collections/${product.category.name.toLowerCase().replace(/\s+/g, '-')}`} className="text-gray-700 hover:text-gray-900">
+                <Link 
+                  href={`/collections/${product.category.name === 'Áo dài cô dâu' ? 'ao-dai-co-dau' : 
+                         product.category.name === 'Áo cưới' ? 'ao-cuoi' : 
+                         product.category.name.toLowerCase().replace(/\s+/g, '-')}`} 
+                  className="text-gray-700 hover:text-gray-900"
+                >
                   {product.category.name}
                 </Link>
               </div>

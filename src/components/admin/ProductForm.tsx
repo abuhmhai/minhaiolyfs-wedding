@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Product, Category } from "@prisma/client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 interface ProductFormProps {
   product?: Product & {
@@ -24,37 +25,70 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     e.preventDefault();
     setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("price", price);
-    formData.append("categoryId", categoryId);
-    formData.append("color", color);
-    formData.append("status", status);
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-
     try {
+      // Validate required fields
+      if (!name || !price || !categoryId) {
+        throw new Error("Please fill in all required fields");
+      }
+
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("description", description);
+      formData.append("price", price);
+      formData.append("categoryId", categoryId);
+      formData.append("color", color);
+      formData.append("status", status);
+      
+      // Log form data for debugging
+      console.log("Form data being sent:", {
+        name,
+        description,
+        price,
+        categoryId,
+        color,
+        status,
+        imagesCount: images.length
+      });
+
+      // Handle images
+      if (images.length > 0) {
+        images.forEach((image) => {
+          formData.append("images", image);
+        });
+      } else if (product?.images) {
+        // If editing and no new images selected, keep existing images
+        product.images.forEach((image) => {
+          formData.append("existingImages", image.url);
+        });
+      }
+
       const url = product
         ? `/api/admin/products/${product.id}`
         : "/api/admin/products";
       const method = product ? "PUT" : "POST";
+
+      console.log("Sending request to:", url, "with method:", method);
 
       const response = await fetch(url, {
         method,
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+
+      const responseData = await response.json();
+      console.log("Response data:", responseData);
+
       if (!response.ok) {
-        throw new Error("Failed to save product");
+        throw new Error(responseData.error || "Failed to save product");
       }
 
+      toast.success(product ? "Cập nhật sản phẩm thành công" : "Thêm sản phẩm mới thành công");
       router.push("/admin/products");
       router.refresh();
     } catch (error) {
       console.error("Error saving product:", error);
-      alert("Failed to save product. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Không thể lưu sản phẩm");
     } finally {
       setIsLoading(false);
     }
@@ -191,6 +225,18 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           className="mt-1 block w-full"
           accept="image/*"
         />
+        {product?.images && product.images.length > 0 && (
+          <div className="mt-2">
+            <p className="text-sm text-gray-500">Current images:</p>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {product.images.map((image, index) => (
+                <div key={index} className="text-sm text-gray-600">
+                  {image.url}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-end space-x-4">

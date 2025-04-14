@@ -3,14 +3,17 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import { compare } from "bcrypt";
+import { Role } from "@prisma/client";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: PrismaAdapter(prisma) as any,
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   pages: {
-    signIn: "/login"
+    signIn: "/login",
+    error: "/login", // Error code passed in query string as ?error=
   },
   providers: [
     CredentialsProvider({
@@ -47,16 +50,16 @@ export const authOptions: NextAuthOptions = {
           id: user.id.toString(),
           email: user.email,
           name: user.fullName,
-          role: user.role
+          role: user.role as Role
         };
       }
     })
   ],
   callbacks: {
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+      if (token && session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as Role;
       }
       return session;
     },
@@ -67,5 +70,7 @@ export const authOptions: NextAuthOptions = {
       }
       return token;
     }
-  }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
 }; 

@@ -7,13 +7,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Image from 'next/image';
 
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface Product {
   id: string;
   name: string;
   description: string;
   price: number;
-  image: string;
-  category: string;
+  images: { url: string }[];
+  category: Category;
 }
 
 interface Props {
@@ -22,7 +28,7 @@ interface Props {
 
 export default function CollectionProducts({ category }: Props) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
@@ -30,7 +36,7 @@ export default function CollectionProducts({ category }: Props) {
     name: '',
     description: '',
     price: '',
-    image: '',
+    images: [] as string[],
     category: category,
   });
 
@@ -59,7 +65,7 @@ export default function CollectionProducts({ category }: Props) {
       const response = await fetch(`/api/products?category=${category}`);
       if (response.ok) {
         const data = await response.json();
-        setProducts(data);
+        setProducts(data.products || []);
       } else {
         toast.error('Không thể tải danh sách sản phẩm');
       }
@@ -75,10 +81,10 @@ export default function CollectionProducts({ category }: Props) {
     setCurrentProduct(product);
     setFormData({
       name: product.name,
-      description: product.description,
+      description: product.description || '',
       price: product.price.toString(),
-      image: product.image,
-      category: product.category,
+      images: product.images.map(img => img.url),
+      category: product.category.slug,
     });
     setIsEditing(true);
   };
@@ -152,7 +158,7 @@ export default function CollectionProducts({ category }: Props) {
       name: '',
       description: '',
       price: '',
-      image: '',
+      images: [],
       category: category,
     });
     setCurrentProduct(null);
@@ -200,12 +206,41 @@ export default function CollectionProducts({ category }: Props) {
           </div>
           <div>
             <label className="block mb-2">URL hình ảnh</label>
-            <Input
-              value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              required
-              disabled={isLoading}
-            />
+            <div className="space-y-2">
+              {formData.images.map((url, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={url}
+                    onChange={(e) => {
+                      const newImages = [...formData.images];
+                      newImages[index] = e.target.value;
+                      setFormData({ ...formData, images: newImages });
+                    }}
+                    required
+                    disabled={isLoading}
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => {
+                      const newImages = formData.images.filter((_, i) => i !== index);
+                      setFormData({ ...formData, images: newImages });
+                    }}
+                    disabled={isLoading}
+                  >
+                    Xóa
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setFormData({ ...formData, images: [...formData.images, ''] })}
+                disabled={isLoading}
+              >
+                Thêm hình ảnh
+              </Button>
+            </div>
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Danh mục</label>
@@ -215,10 +250,11 @@ export default function CollectionProducts({ category }: Props) {
               onChange={(e) => setFormData({ ...formData, category: e.target.value })}
               className="w-full border rounded-md px-3 py-2"
               required
+              disabled={isLoading}
             >
               {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
+                <option key={cat.id} value={cat.slug}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -242,29 +278,22 @@ export default function CollectionProducts({ category }: Props) {
           {products.map((product) => (
             <div key={product.id} className="border rounded-lg p-4">
               <div className="relative h-48 mb-4">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover rounded-lg"
-                />
+                {product.images[0] && (
+                  <Image
+                    src={product.images[0].url}
+                    alt={product.name}
+                    fill
+                    className="object-cover rounded-lg"
+                  />
+                )}
               </div>
               <h3 className="font-medium mb-2">{product.name}</h3>
-              <p className="text-gray-600 mb-2">{product.description}</p>
-              <p className="font-medium mb-4">{product.price.toLocaleString()} VNĐ</p>
+              <p className="text-gray-600 mb-2">{product.price.toLocaleString('vi-VN')}₫</p>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handleEdit(product)}
-                  disabled={isLoading}
-                >
-                  Chỉnh sửa
+                <Button onClick={() => handleEdit(product)} variant="outline" size="sm">
+                  Sửa
                 </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleDelete(product.id)}
-                  disabled={isLoading}
-                >
+                <Button onClick={() => handleDelete(product.id)} variant="destructive" size="sm">
                   Xóa
                 </Button>
               </div>
