@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { Toaster } from 'sonner';
+import { NextAuthProvider } from '@/providers/NextAuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,12 +25,14 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className={inter.className}>
-        <Header />
-        <main className="min-h-screen bg-gray-50">
-          {children}
-        </main>
-        <Footer />
-        <Toaster position="top-right" />
+        <NextAuthProvider>
+          <Header />
+          <main className="min-h-screen bg-gray-50">
+            {children}
+          </main>
+          <Footer />
+          <Toaster position="top-right" />
+        </NextAuthProvider>
       </body>
     </html>
   );
