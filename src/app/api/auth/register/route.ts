@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/db';
+import { prisma } from '@/lib/prisma';
+import { hash } from 'bcrypt';
 
 export async function POST(request: Request) {
   try {
-    const { email, password, fullName, phone } = await request.json();
+    const { email, password, fullName, phone, address } = await request.json();
 
     // Validate input
     if (!email || !password || !fullName) {
@@ -14,39 +14,41 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if email already exists
+    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
 
     if (existingUser) {
       return NextResponse.json(
-        { message: 'Email đã được sử dụng' },
+        { error: 'Email already registered' },
         { status: 400 }
       );
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hash(password, 10);
 
-    // Create new user
-    await prisma.user.create({
+    // Create user
+    const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
         fullName,
         phone,
+        address,
+        role: 'user',
       },
     });
 
     return NextResponse.json(
-      { message: 'Đăng ký thành công' },
+      { message: 'User created successfully' },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Error creating user:', error);
     return NextResponse.json(
-      { message: 'Có lỗi xảy ra trong quá trình đăng ký' },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }

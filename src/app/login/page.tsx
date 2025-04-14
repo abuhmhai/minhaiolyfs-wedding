@@ -1,99 +1,99 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/store/userStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
-  const setUser = useUserStore((state) => state.setUser);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
+    setError("");
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setUser(data.user);
-        toast.success('Đăng nhập thành công');
-        router.push('/');
+      if (result?.error) {
+        setError("Invalid email or password");
       } else {
-        toast.error(data.error || 'Đăng nhập thất bại');
+        router.push("/");
+        router.refresh();
       }
     } catch (error) {
-      console.error('Login error:', error);
-      toast.error('Có lỗi xảy ra khi đăng nhập');
+      setError("An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Đăng nhập
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                Email
-              </label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="Email"
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Mật khẩu
-              </label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="Mật khẩu"
-                disabled={isLoading}
-              />
-            </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto bg-white p-8 rounded-lg shadow-sm">
+        <h1 className="text-2xl font-bold mb-6">Sign In</h1>
+
+        {error && (
+          <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium mb-1">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="input"
+            />
           </div>
 
           <div>
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-            </Button>
+            <label htmlFor="password" className="block text-sm font-medium mb-1">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="input"
+            />
           </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn btn-primary w-full"
+          >
+            {isLoading ? "Signing in..." : "Sign In"}
+          </button>
         </form>
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link href="/register" className="text-blue-500 hover:underline">
+              Register
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

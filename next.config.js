@@ -7,6 +7,7 @@ const nextConfig = {
       "images.unsplash.com",
       "ext.same-assets.com",
       "ugc.same-assets.com",
+      "localhost",
     ],
     remotePatterns: [
       {
@@ -38,7 +39,9 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   experimental: {
-    serverActions: true,
+    serverActions: {
+      allowedOrigins: ["localhost:3000"],
+    },
     serverComponents: true,
     webpackBuildWorker: true,
   },

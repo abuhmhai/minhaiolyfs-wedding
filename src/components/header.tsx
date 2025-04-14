@@ -164,7 +164,7 @@ const Header = () => {
         <div className="container mx-auto px-4">
           <ul className="flex items-center justify-center space-x-8 py-4">
             <li>
-              <Link href="/collections/do-you-see-you-fall-collection-2025" className="text-gray-700 hover:text-gray-900">
+              <Link href="/collections/" className="text-gray-700 hover:text-gray-900">
                 COLLECTIONS
               </Link>
             </li>

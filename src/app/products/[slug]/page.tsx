@@ -1,4 +1,8 @@
 import { Metadata } from 'next';
+import { prisma } from "@/lib/prisma";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import AddToCartButton from "@/components/products/AddToCartButton";
 import ProductDetail from '@/components/product-detail';
 
 type Props = {
@@ -6,11 +10,13 @@ type Props = {
 };
 
 export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+  const { slug } = await params;
   return {
-    title: `Product ${params.slug}`,
+    title: `Product ${slug}`,
   };
 };
 
 export default async function ProductPage({ params }: Props) {
-  return <ProductDetail slug={params.slug} />;
+  const { slug } = await params;
+  return <ProductDetail slug={slug} />;
 }

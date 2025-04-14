@@ -1,28 +1,31 @@
 import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { Toaster } from 'sonner';
 
+const inter = Inter({ subsets: ['latin'] });
+
 export const metadata: Metadata = {
-  title: 'NHUNGTRANG WEDDING STORE',
-  description: 'Be Legendary. Be The One•Wedding dress•Ao dai•Wedding accessories• Classic & timeless design• Customize for brides in over 20 nations',
+  title: 'Wedding Dress Rental',
+  description: 'Rent beautiful wedding dresses and áo dài for your special day',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className={cn("min-h-screen bg-white font-sans antialiased")}>
+      <body className={inter.className}>
         <Header />
-        <main className="relative">
+        <main className="min-h-screen bg-gray-50">
           {children}
         </main>
         <Footer />
