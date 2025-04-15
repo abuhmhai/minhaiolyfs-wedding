@@ -1,4 +1,4 @@
-import { Product } from "@prisma/client";
+import { Product, ProductStatus } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,6 +10,21 @@ interface ProductListProps {
 }
 
 export default function ProductList({ products }: ProductListProps) {
+  const getStatusColor = (status: ProductStatus) => {
+    switch (status) {
+      case ProductStatus.IN_STOCK:
+        return "bg-green-100 text-green-800";
+      case ProductStatus.LOW_STOCK:
+        return "bg-yellow-100 text-yellow-800";
+      case ProductStatus.OUT_OF_STOCK:
+        return "bg-red-100 text-red-800";
+      case ProductStatus.DISCONTINUED:
+        return "bg-gray-100 text-gray-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
+
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white">
@@ -26,6 +41,9 @@ export default function ProductList({ products }: ProductListProps) {
             </th>
             <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Price
+            </th>
+            <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              Stock
             </th>
             <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
               Status
@@ -61,15 +79,18 @@ export default function ProductList({ products }: ProductListProps) {
                 </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <div className="text-sm text-gray-900">${product.price}</div>
+                <div className="text-sm text-gray-900">
+                  {product.price.toLocaleString('vi-VN')}₫
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="text-sm text-gray-900">
+                  {product.stockQuantity}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
                 <span
-                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    product.status === "IN_STOCK"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
+                  className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(product.status)}`}
                 >
                   {product.status}
                 </span>

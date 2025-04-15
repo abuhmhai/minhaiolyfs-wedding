@@ -1,65 +1,48 @@
-import { prisma } from "@/lib/prisma";
-import ProductCard from "./ProductCard";
-import Pagination from "./Pagination";
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Product } from "@prisma/client";
 
 interface ProductListProps {
-  search?: string;
-  category?: string;
-  page: number;
+  products: (Product & {
+    images: { url: string }[];
+    category: { name: string };
+  })[];
 }
 
-export default async function ProductList({
-  search,
-  category,
-  page,
-}: ProductListProps) {
-  const limit = 12;
-  const skip = (page - 1) * limit;
-
-  const where = {
-    ...(category ? { categoryId: parseInt(category) } : {}),
-    ...(search ? {
-      OR: [
-        { name: { contains: search } },
-        { description: { contains: search } }
-      ]
-    } : {})
-  };
-
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        images: true,
-      },
-      skip,
-      take: limit,
-      orderBy: { createdAt: "desc" }
-    }),
-    prisma.product.count({ where })
-  ]);
-
-  const totalPages = Math.ceil(total / limit);
+export default function ProductList({ products }: ProductListProps) {
+  if (products.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-lg text-gray-600">No products found</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
-
-      {totalPages > 1 && (
-        <div className="mt-8">
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            search={search}
-            category={category}
-          />
-        </div>
-      )}
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {products.map((product) => (
+        <Link
+          key={product.id}
+          href={`/products/${product.slug}`}
+          className="group"
+        >
+          <div className="relative aspect-square overflow-hidden rounded-lg">
+            <Image
+              src={product.images[0]?.url || "/placeholder.jpg"}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+            />
+          </div>
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">{product.name}</h3>
+            <p className="text-sm text-gray-500">{product.category.name}</p>
+            <p className="mt-2 font-medium">${product.price.toFixed(2)}</p>
+          </div>
+        </Link>
+      ))}
     </div>
   );
 } 

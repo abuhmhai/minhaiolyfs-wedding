@@ -6,6 +6,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Product } from '@prisma/client';
+import RentalDatePicker from './RentalDatePicker';
+import { useCart } from '@/hooks/useCart';
+import { toast } from 'sonner';
 
 interface ProductDetailClientProps {
   product: Product & {
@@ -17,10 +20,56 @@ interface ProductDetailClientProps {
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [mainImage, setMainImage] = useState(product.images[0]?.url || '/placeholder.jpg');
   const [quantity, setQuantity] = useState(1);
+  const [rentalStartDate, setRentalStartDate] = useState<Date | null>(null);
+  const [rentalEndDate, setRentalEndDate] = useState<Date | null>(null);
+  const [selectedColor, setSelectedColor] = useState(product.color || 'OFFWHITE');
+  const [selectedStyle, setSelectedStyle] = useState('full set');
+  const { addItem } = useCart();
 
   const handleThumbnailClick = (image: string) => {
     setMainImage(image);
   };
+
+  const handleDatesSelected = (startDate: Date | null, endDate: Date | null) => {
+    setRentalStartDate(startDate);
+    setRentalEndDate(endDate);
+  };
+
+  const handleAddToCart = () => {
+    if (!rentalStartDate || !rentalEndDate) {
+      toast.error('Vui lòng chọn thời gian thuê');
+      return;
+    }
+
+    if (product.stockQuantity < quantity) {
+      toast.error('Số lượng sản phẩm không đủ');
+      return;
+    }
+
+    if (!selectedColor || !selectedStyle) {
+      toast.error('Vui lòng chọn đầy đủ thông tin sản phẩm');
+      return;
+    }
+
+    const cartItem = {
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.images[0]?.url || '/placeholder.jpg',
+      quantity: quantity,
+      rentalStartDate: rentalStartDate,
+      rentalEndDate: rentalEndDate,
+      color: selectedColor,
+      type: 'rental',
+      style: selectedStyle,
+    };
+
+    addItem(cartItem);
+    toast.success('Đã thêm vào giỏ hàng');
+  };
+
+  const isOutOfStock = product.stockQuantity <= 0;
+  const isLowStock = product.stockQuantity <= 5 && product.stockQuantity > 0;
 
   // Mock data for product details - replace with actual data from your database
   const productDetails = {
@@ -133,43 +182,84 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           <div className="space-y-4">
             <h1 className="text-3xl font-medium">{product.name}</h1>
             <p className="text-2xl text-gray-800">{product.price.toLocaleString('vi-VN')}₫</p>
+            
+            {/* Stock status */}
+            <div className="flex items-center gap-2">
+              {isOutOfStock ? (
+                <span className="text-red-600 font-medium">Hết hàng</span>
+              ) : isLowStock ? (
+                <span className="text-amber-600 font-medium">
+                  Sắp hết hàng (Còn {product.stockQuantity} sản phẩm)
+                </span>
+              ) : (
+                <span className="text-green-600 font-medium">
+                  Còn hàng ({product.stockQuantity} sản phẩm)
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="space-y-6">
+            {/* Rental Date Picker */}
+            <RentalDatePicker
+              onDatesSelected={handleDatesSelected}
+              isDisabled={isOutOfStock}
+            />
+
+            <div className="space-y-2">
+              <p className="block text-sm font-medium text-gray-700">Kiểu dáng</p>
+              <div className="flex gap-3">
+                <button 
+                  type="button"
+                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                    selectedStyle === 'full set' 
+                      ? 'bg-amber-800 text-white' 
+                      : 'bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedStyle('full set')}
+                >
+                  Full Set
+                </button>
+                <button 
+                  type="button"
+                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                    selectedStyle === 'top' 
+                      ? 'bg-amber-800 text-white' 
+                      : 'bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedStyle('top')}
+                >
+                  Top
+                </button>
+                <button 
+                  type="button"
+                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                    selectedStyle === 'bottom' 
+                      ? 'bg-amber-800 text-white' 
+                      : 'bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setSelectedStyle('bottom')}
+                >
+                  Bottom
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label htmlFor="color" className="block text-sm font-medium text-gray-700">
                 Màu sắc
               </label>
               <select
                 id="color"
-                className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                value={selectedColor}
+                onChange={(e) => setSelectedColor(e.target.value)}
+                className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-pointer"
               >
-                <option>{product.color?.toUpperCase() || 'OFFWHITE'}</option>
+                <option value="OFFWHITE">OFFWHITE</option>
+                <option value="IVORY">IVORY</option>
+                <option value="BLUSH">BLUSH</option>
+                <option value="CHAMPAGNE">CHAMPAGNE</option>
               </select>
-            </div>
-
-            <div className="space-y-2">
-              <p className="block text-sm font-medium text-gray-700">Phân loại</p>
-              <div className="flex gap-3">
-                <button className="bg-gray-100 border border-gray-300 px-6 py-2.5 text-sm font-medium rounded-md hover:bg-gray-200">
-                  Thuê
-                </button>
-                <button className="bg-white border border-gray-300 px-6 py-2.5 text-sm font-medium rounded-md hover:bg-gray-50">
-                  Bán
-                </button>
-                <button className="bg-white border border-gray-300 px-6 py-2.5 text-sm font-medium rounded-md hover:bg-gray-50">
-                  May
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <p className="block text-sm font-medium text-gray-700">Kiểu dáng</p>
-              <div className="flex gap-3">
-                <button className="bg-gray-100 border border-gray-300 px-6 py-2.5 text-sm font-medium rounded-md">
-                  full set
-                </button>
-              </div>
             </div>
 
             <p className="text-sm text-blue-600 underline cursor-pointer hover:text-blue-800">
@@ -184,17 +274,23 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 type="number"
                 id="quantity"
                 min="1"
+                max={product.stockQuantity}
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                onChange={(e) => setQuantity(Math.min(parseInt(e.target.value), product.stockQuantity))}
                 className="w-20 border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                disabled={isOutOfStock}
               />
             </div>
 
             <div className="flex gap-4">
-              <Button className="flex-1 bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-md">
-                LIÊN HỆ QUA FANPAGE
+              <Button
+                className="flex-1 bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-md transition-colors"
+                onClick={handleAddToCart}
+                disabled={isOutOfStock || !rentalStartDate || !rentalEndDate || !selectedColor || !selectedStyle}
+              >
+                THÊM VÀO GIỎ HÀNG
               </Button>
-              <Button variant="outline" className="flex-1 px-6 py-2.5 border-amber-800 text-amber-800 hover:bg-amber-50 rounded-md">
+              <Button variant="outline" className="flex-1 px-6 py-2.5 border-amber-800 text-amber-800 hover:bg-amber-50 rounded-md transition-colors">
                 LIÊN HỆ QUA HOTLINE
               </Button>
             </div>

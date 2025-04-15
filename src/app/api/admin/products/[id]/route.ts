@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ProductStatus } from '@prisma/client';
 
 export async function PUT(
   request: Request,
@@ -25,7 +26,8 @@ export async function PUT(
     const price = parseFloat(formData.get("price") as string);
     const categoryId = parseInt(formData.get("categoryId") as string);
     const color = formData.get("color") as string;
-    const status = formData.get("status") as "IN_STOCK" | "OUT_OF_STOCK";
+    const status = formData.get("status") as ProductStatus;
+    const stockQuantity = parseInt(formData.get("stockQuantity") as string);
     const images = formData.getAll("images") as File[];
     const existingImages = formData.getAll("existingImages") as string[];
 
@@ -36,6 +38,7 @@ export async function PUT(
       categoryId,
       color,
       status,
+      stockQuantity,
       imagesCount: images.length,
       existingImagesCount: existingImages.length
     });
@@ -95,6 +98,7 @@ export async function PUT(
           color,
           status,
           slug,
+          stockQuantity,
           images: imageData,
         },
         include: {

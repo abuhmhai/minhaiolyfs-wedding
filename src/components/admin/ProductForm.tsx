@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Product, Category } from "@prisma/client";
+import { Product, Category, ProductStatus } from "@prisma/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -18,6 +18,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
   const [categoryId, setCategoryId] = useState(product?.categoryId?.toString() || "");
   const [color, setColor] = useState(product?.color || "");
   const [status, setStatus] = useState(product?.status || "IN_STOCK");
+  const [stockQuantity, setStockQuantity] = useState(product?.stockQuantity?.toString() || "0");
   const [images, setImages] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,6 +39,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       formData.append("categoryId", categoryId);
       formData.append("color", color);
       formData.append("status", status);
+      formData.append("stockQuantity", stockQuantity);
       
       // Log form data for debugging
       console.log("Form data being sent:", {
@@ -47,6 +49,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         categoryId,
         color,
         status,
+        stockQuantity,
         imagesCount: images.length
       });
 
@@ -189,6 +192,24 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
       <div>
         <label
+          htmlFor="stockQuantity"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Stock Quantity
+        </label>
+        <input
+          type="number"
+          id="stockQuantity"
+          value={stockQuantity}
+          onChange={(e) => setStockQuantity(e.target.value)}
+          min="0"
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+          required
+        />
+      </div>
+
+      <div>
+        <label
           htmlFor="status"
           className="block text-sm font-medium text-gray-700"
         >
@@ -197,12 +218,14 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         <select
           id="status"
           value={status}
-          onChange={(e) => setStatus(e.target.value as "IN_STOCK" | "OUT_OF_STOCK")}
+          onChange={(e) => setStatus(e.target.value as ProductStatus)}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
         >
           <option value="IN_STOCK">In Stock</option>
           <option value="OUT_OF_STOCK">Out of Stock</option>
+          <option value="LOW_STOCK">Low Stock</option>
+          <option value="DISCONTINUED">Discontinued</option>
         </select>
       </div>
 

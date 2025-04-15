@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, ShoppingBag, Menu, X, User, LogOut, ShoppingCart } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +18,7 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [user, setUser] = useState<{ fullName: string; email: string; role: string } | null>(null);
+  const { items } = useCart();
 
   useEffect(() => {
     // Check if user is logged in
@@ -153,9 +155,11 @@ const Header = () => {
         {/* Cart */}
         <Link href="/cart" className="relative">
           <ShoppingBag className="h-5 w-5 text-gray-700" />
-          <span className="absolute -top-2 -right-2 bg-zinc-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-            0
-          </span>
+          {items.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-amber-800 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {items.length}
+            </span>
+          )}
         </Link>
       </div>
 

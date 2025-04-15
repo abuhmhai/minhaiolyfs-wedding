@@ -38,6 +38,7 @@ model Product {
   price           Float
   slug            String                  @unique
   color           String?
+  stockQuantity   Int                     @default(0)
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
   categoryId      Int
@@ -124,6 +125,7 @@ model CartItem {
   product          Product                @relation(fields: [productId], references: [id])
   rentalDuration   ProductRentalDuration? @relation(fields: [rentalDurationId], references: [id])
 
+  @@unique([cartId, productId])
   @@index([cartId], map: "CartItem_cartId_fkey")
   @@index([productId], map: "CartItem_productId_fkey")
   @@index([rentalDurationId], map: "CartItem_rentalDurationId_fkey")
@@ -169,6 +171,8 @@ enum Role {
 enum ProductStatus {
   IN_STOCK
   OUT_OF_STOCK
+  LOW_STOCK
+  DISCONTINUED
 }
 
 enum OrderStatus {
