@@ -117,6 +117,11 @@ model CartItem {
   cartId           Int
   productId        Int
   quantity         Int
+  color            String?
+  type             String?
+  style            String?
+  rentalStartDate  DateTime?
+  rentalEndDate    DateTime?
   createdAt        DateTime               @default(now())
   updatedAt        DateTime               @updatedAt
   rentalDurationId Int?

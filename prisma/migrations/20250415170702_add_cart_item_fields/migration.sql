@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE `CartItem` ADD COLUMN `color` VARCHAR(191) NULL,
+    ADD COLUMN `rentalEndDate` DATETIME(3) NULL,
+    ADD COLUMN `rentalStartDate` DATETIME(3) NULL,
+    ADD COLUMN `style` VARCHAR(191) NULL,
+    ADD COLUMN `type` VARCHAR(191) NULL;

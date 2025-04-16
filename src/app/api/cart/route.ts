@@ -68,7 +68,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { productId, quantity } = await request.json();
+    const { 
+      productId, 
+      quantity, 
+      color, 
+      type, 
+      style, 
+      rentalStartDate, 
+      rentalEndDate 
+    } = await request.json();
 
     // Find or create cart
     let cart = await prisma.cart.findUnique({
@@ -92,12 +100,22 @@ export async function POST(request: Request) {
         }
       },
       update: {
-        quantity
+        quantity,
+        color,
+        type,
+        style,
+        rentalStartDate: new Date(rentalStartDate),
+        rentalEndDate: new Date(rentalEndDate)
       },
       create: {
         cartId: cart.id,
         productId: parseInt(productId),
-        quantity
+        quantity,
+        color,
+        type,
+        style,
+        rentalStartDate: new Date(rentalStartDate),
+        rentalEndDate: new Date(rentalEndDate)
       }
     });
 

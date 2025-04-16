@@ -2,18 +2,54 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/hooks/useCart";
 
 interface AddToCartButtonProps {
   productId: number;
+  name: string;
+  price: number;
+  image: string;
+  color: string;
+  type: string;
+  style: string;
+  rentalStartDate: Date;
+  rentalEndDate: Date;
 }
 
-export default function AddToCartButton({ productId }: AddToCartButtonProps) {
+export default function AddToCartButton({
+  productId,
+  name,
+  price,
+  image,
+  color,
+  type,
+  style,
+  rentalStartDate,
+  rentalEndDate,
+}: AddToCartButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { addItem } = useCart();
 
   const handleAddToCart = async () => {
     try {
       setIsLoading(true);
+      
+      // First, add to local cart state
+      addItem({
+        productId,
+        name,
+        price,
+        image,
+        quantity: 1,
+        color,
+        type,
+        style,
+        rentalStartDate,
+        rentalEndDate,
+      });
+
+      // Then sync with database
       const response = await fetch("/api/cart", {
         method: "POST",
         headers: {
@@ -22,6 +58,11 @@ export default function AddToCartButton({ productId }: AddToCartButtonProps) {
         body: JSON.stringify({
           productId,
           quantity: 1,
+          color,
+          type,
+          style,
+          rentalStartDate: rentalStartDate.toISOString(),
+          rentalEndDate: rentalEndDate.toISOString(),
         }),
       });
 
