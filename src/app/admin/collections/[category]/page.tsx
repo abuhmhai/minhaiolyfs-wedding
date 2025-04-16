@@ -12,14 +12,18 @@ interface CollectionPageProps {
 // Define static paths for the categories
 export async function generateStaticParams() {
   return [
-    { category: 'ao-cuoi' },
+    { category: 'ball-gown' },
+    { category: 'a-line' },
+    { category: 'mermaid' },
     { category: 'ao-dai-co-dau' }
   ];
 }
 
 async function CategoryContent({ category }: { category: string }) {
   const categoryMap: Record<string, string> = {
-    'ao-cuoi': 'Áo cưới',
+    'ball-gown': 'Ball Gown',
+    'a-line': 'A-Line',
+    'mermaid': 'Mermaid',
     'ao-dai-co-dau': 'Áo dài cô dâu',
   };
 
@@ -42,12 +46,9 @@ export default async function CollectionPage({ params }: CollectionPageProps) {
   // First check admin status
   await requireAdmin();
 
-  // Await the params before using them
-  const { category } = params;
-
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <CategoryContent category={category} />
+      <CategoryContent category={params.category} />
     </Suspense>
   );
 } 

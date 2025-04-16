@@ -1,7 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { redirect } from "next/navigation";
 import { notFound } from "next/navigation";
 import ProductForm from "@/components/admin/ProductForm";
 
@@ -12,12 +9,6 @@ interface EditProductPageProps {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== "admin") {
-    redirect("/login");
-  }
-
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id: parseInt(params.id) },

@@ -9,6 +9,22 @@ import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
 const aoDaiDresses = [
   {
     id: '1',
+    name: 'THIÊN HƯƠNG - VLTX-1001 LUXURY ÁO DÀI CÔ DÂU ĐỎ THÊU HOA',
+    price: '15,000,000₫',
+    image: 'https://ext.same-assets.com/3216405869/thien-huong-vltx-1001.png',
+    slug: 'thien-huong-vltx-1001-luxury-ao-dai-co-dau-do-theu-hoa',
+    color: 'red',
+  },
+  {
+    id: '2',
+    name: 'NGỌC LAN - VPFA-1002 PREMIUM ÁO DÀI CÔ DÂU HỒNG THÊU RỒNG PHƯỢNG',
+    price: '17,000,000₫',
+    image: 'https://ext.same-assets.com/3216405869/ngoc-lan-vpfa-1002.png',
+    slug: 'ngoc-lan-vpfa-1002-premium-ao-dai-co-dau-hong-theu-rong-phuong',
+    color: 'pink',
+  },
+  {
+    id: '3',
     name: 'THƯONG DUNG - ÁO DÀI CÔ DÂU ADCD - 226',
     price: '5,000,000₫',
     image: 'https://ext.same-assets.com/3216405869/3014493778.png',
@@ -16,7 +32,7 @@ const aoDaiDresses = [
     color: 'red',
   },
   {
-    id: '2',
+    id: '4',
     name: 'VÂN NHƯ - ÁO DÀI CÔ DÂU ADCD - 228',
     price: '4,500,000₫',
     image: 'https://ext.same-assets.com/3216405869/2241857545.png',
@@ -24,7 +40,7 @@ const aoDaiDresses = [
     color: 'pink',
   },
   {
-    id: '3',
+    id: '5',
     name: 'KIỀU CHÂU - ÁO DÀI CÔ DÂU ADCD - 224',
     price: '4,500,000₫',
     image: 'https://ext.same-assets.com/3216405869/1335644271.png',
@@ -32,7 +48,7 @@ const aoDaiDresses = [
     color: 'white',
   },
   {
-    id: '4',
+    id: '6',
     name: 'NGỌC DAO - ÁO DÀI CÔ DÂU ADCD - 225',
     price: '4,000,000₫',
     image: 'https://ext.same-assets.com/3216405869/3014493778.png',
@@ -40,7 +56,7 @@ const aoDaiDresses = [
     color: 'white',
   },
   {
-    id: '5',
+    id: '7',
     name: 'BẠCH LIÊN - ÁO DÀI CÔ DÂU ADCD - 231',
     price: '3,000,000₫',
     image: 'https://ext.same-assets.com/3216405869/4218051108.png',
@@ -48,7 +64,7 @@ const aoDaiDresses = [
     color: 'white',
   },
   {
-    id: '6',
+    id: '8',
     name: 'ĐÔNG MAI - ÁO DÀI CÔ DÂU ADCD - 230',
     price: '3,000,000₫',
     image: 'https://ext.same-assets.com/3216405869/3014493778.png',
@@ -56,7 +72,7 @@ const aoDaiDresses = [
     color: 'red',
   },
   {
-    id: '7',
+    id: '9',
     name: 'THANH TÂM - ÁO DÀI CÔ DÂU ADCD - 227',
     price: '3,000,000₫',
     image: 'https://ext.same-assets.com/3216405869/809727370.png',
@@ -64,13 +80,13 @@ const aoDaiDresses = [
     color: 'white',
   },
   {
-    id: '8',
+    id: '10',
     name: 'ÁO DÀI CÔ DÂU ADCD-220',
     price: '2,500,000₫',
     image: 'https://ext.same-assets.com/3216405869/2538418983.png',
     slug: 'ao-dai-co-dau-adcd-220',
     color: 'red',
-  },
+  }
 ];
 
 type FilterCategory = 'color' | 'price';

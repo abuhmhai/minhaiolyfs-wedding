@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProductStatus } from '@prisma/client';
 
@@ -9,15 +7,6 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
     console.log("Processing product update for ID:", params.id);
 
     const formData = await request.formData();
@@ -97,30 +86,24 @@ export async function PUT(
           categoryId,
           color,
           status,
-          slug,
           stockQuantity,
+          slug,
           images: imageData,
-        },
-        include: {
-          category: true,
-          images: true,
         },
       });
 
-      console.log("Product updated successfully:", product);
-
       return NextResponse.json(product);
     } catch (error) {
-      console.error("Database error:", error);
+      console.error("Error updating product:", error);
       return NextResponse.json(
-        { error: "Database error occurred" },
+        { error: "Failed to update product" },
         { status: 500 }
       );
     }
   } catch (error) {
-    console.error("Error updating product:", error);
+    console.error("Error processing request:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -131,25 +114,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
-
-    // Delete product
     await prisma.product.delete({
       where: { id: parseInt(params.id) },
     });
 
-    return new NextResponse(null, { status: 204 });
+    return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
-    console.error("Error deleting product:", error);
+    console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: 'Internal Server Error' },
       { status: 500 }
     );
   }

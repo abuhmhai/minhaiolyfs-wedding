@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 interface Category {
   id: number;
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export default function CollectionProducts({ category }: Props) {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +67,7 @@ export default function CollectionProducts({ category }: Props) {
       const response = await fetch(`/api/products?category=${category}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched products:', data.products);
         setProducts(data.products || []);
       } else {
         toast.error('Không thể tải danh sách sản phẩm');
@@ -83,8 +86,8 @@ export default function CollectionProducts({ category }: Props) {
       name: product.name,
       description: product.description || '',
       price: product.price.toString(),
-      images: product.images.map(img => img.url),
-      category: product.category.slug,
+      images: product.images?.map(img => img.url) || [],
+      category: product.category?.slug || category,
     });
     setIsEditing(true);
   };
@@ -93,11 +96,14 @@ export default function CollectionProducts({ category }: Props) {
     if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
 
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/admin/products/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to delete product');
+      if (!response.ok) {
+        throw new Error('Failed to delete product');
+      }
 
       setProducts(products.filter(product => product.id !== id));
       toast.success('Xóa sản phẩm thành công');
@@ -112,25 +118,41 @@ export default function CollectionProducts({ category }: Props) {
     setIsLoading(true);
 
     try {
-      const productData = {
-        ...formData,
-        price: parseFloat(formData.price),
-      };
+      const formDataObj = new FormData();
+      formDataObj.append("name", formData.name);
+      formDataObj.append("description", formData.description);
+      formDataObj.append("price", formData.price);
+      
+      const selectedCategory = categories.find(cat => cat.slug === formData.category);
+      if (!selectedCategory) {
+        throw new Error('Danh mục không hợp lệ');
+      }
+      formDataObj.append("categoryId", selectedCategory.id.toString());
+      
+      formDataObj.append("status", "IN_STOCK");
+      formDataObj.append("stockQuantity", "0");
+
+      if (formData.images && formData.images.length > 0) {
+        formData.images.forEach((url: string) => {
+          formDataObj.append("images", url);
+        });
+      }
 
       const url = currentProduct
-        ? `/api/products/${currentProduct.id}`
-        : '/api/products';
+        ? `/api/admin/products/${currentProduct.id}`
+        : '/api/admin/products';
       const method = currentProduct ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData),
+        body: formDataObj,
+        credentials: 'include',
       });
 
-      if (!response.ok) throw new Error('Failed to save product');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save product');
+      }
 
       const savedProduct = await response.json();
       
@@ -146,8 +168,8 @@ export default function CollectionProducts({ category }: Props) {
 
       resetForm();
     } catch (error) {
-      toast.error('Không thể lưu sản phẩm');
       console.error('Error saving product:', error);
+      toast.error(error instanceof Error ? error.message : 'Không thể lưu sản phẩm');
     } finally {
       setIsLoading(false);
     }
@@ -277,14 +299,18 @@ export default function CollectionProducts({ category }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <div key={product.id} className="border rounded-lg p-4">
-              <div className="relative h-48 mb-4">
-                {product.images[0] && (
+              <div className="relative h-48 mb-4 bg-gray-100 rounded-lg">
+                {product.images && product.images.length > 0 ? (
                   <Image
                     src={product.images[0].url}
                     alt={product.name}
                     fill
                     className="object-cover rounded-lg"
                   />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-gray-400">
+                    No image
+                  </div>
                 )}
               </div>
               <h3 className="font-medium mb-2">{product.name}</h3>

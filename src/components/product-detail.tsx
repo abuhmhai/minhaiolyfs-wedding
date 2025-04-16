@@ -15,12 +15,8 @@ export default async function ProductDetail({ slug }: ProductDetailProps) {
     },
   });
 
-  if (!product) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold text-center">Product not found</h1>
-      </div>
-    );
+  if (!product || !product.images || product.images.length === 0) {
+    notFound();
   }
 
   return <ProductDetailClient product={product} />;

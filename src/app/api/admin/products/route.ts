@@ -1,29 +1,25 @@
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ProductStatus } from '@prisma/client';
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     const formData = await request.formData();
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
-    const categoryId = parseInt(formData.get("categoryId") as string);
+    const categoryId = formData.get("categoryId");
     const color = formData.get("color") as string;
     const status = formData.get("status") as ProductStatus;
     const stockQuantity = parseInt(formData.get("stockQuantity") as string);
-    const images = formData.getAll("images") as File[];
+    const images = formData.getAll("images") as string[];
+
+    if (!categoryId) {
+      return NextResponse.json(
+        { error: 'Category ID is required' },
+        { status: 400 }
+      );
+    }
 
     // Generate slug from name
     const slug = name
@@ -37,21 +33,19 @@ export async function POST(request: Request) {
         name,
         description,
         price,
-        categoryId,
         color,
         status,
         stockQuantity,
         slug,
+        category: {
+          connect: {
+            id: Number(categoryId)
+          }
+        },
         images: {
-          create: await Promise.all(
-            images.map(async (image) => {
-              // TODO: Upload image to storage service (e.g., AWS S3, Cloudinary)
-              // For now, we'll just store the file name
-              return {
-                url: image.name,
-              };
-            })
-          ),
+          create: images.map(url => ({
+            url: url
+          }))
         },
       },
     });

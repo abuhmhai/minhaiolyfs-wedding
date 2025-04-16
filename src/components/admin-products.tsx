@@ -18,6 +18,14 @@ interface Product {
   slug: string;
   category: string;
   color: string | null;
+  categoryId: number;
+  status: string;
+  stockQuantity: number;
+}
+
+interface Category {
+  id: number;
+  name: string;
 }
 
 export default function AdminProducts() {
@@ -27,6 +35,7 @@ export default function AdminProducts() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -35,6 +44,7 @@ export default function AdminProducts() {
     }
 
     fetchProducts();
+    fetchCategories();
   }, [user, router]);
 
   const fetchProducts = async () => {
@@ -49,6 +59,21 @@ export default function AdminProducts() {
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Có lỗi xảy ra khi tải danh sách sản phẩm');
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data);
+      } else {
+        toast.error('Không thể tải danh sách danh mục');
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast.error('Có lỗi xảy ra khi tải danh sách danh mục');
     }
   };
 
@@ -84,31 +109,25 @@ export default function AdminProducts() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = {
-      name: formData.get('name') as string,
-      description: formData.get('description') as string,
-      price: parseFloat(formData.get('price') as string),
-      image: formData.get('image') as string,
-      slug: formData.get('slug') as string,
-      category: formData.get('category') as string,
-      color: formData.get('color') as string,
-    };
+    setIsLoading(true);
 
     try {
-      setIsLoading(true);
-      const response = await fetch(
-        editingProduct
-          ? `/api/products/${editingProduct.id}`
-          : '/api/products',
-        {
-          method: editingProduct ? 'PUT' : 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const formData = new FormData(e.currentTarget);
+      
+      // Validate required fields
+      if (!formData.get('name') || !formData.get('price') || !formData.get('categoryId')) {
+        throw new Error('Vui lòng điền đầy đủ thông tin bắt buộc');
+      }
+
+      const url = editingProduct
+        ? `/api/admin/products/${editingProduct.id}`
+        : '/api/admin/products';
+      const method = editingProduct ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
+        body: formData,
+      });
 
       if (response.ok) {
         toast.success(
@@ -120,15 +139,12 @@ export default function AdminProducts() {
         setEditingProduct(null);
         await fetchProducts();
       } else {
-        toast.error(
-          editingProduct
-            ? 'Không thể cập nhật sản phẩm'
-            : 'Không thể thêm sản phẩm mới'
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Không thể lưu sản phẩm');
       }
     } catch (error) {
       console.error('Error saving product:', error);
-      toast.error('Có lỗi xảy ra khi lưu sản phẩm');
+      toast.error(error instanceof Error ? error.message : 'Có lỗi xảy ra khi lưu sản phẩm');
     } finally {
       setIsLoading(false);
     }
@@ -180,37 +196,63 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Hình ảnh URL</label>
-              <Input
-                name="image"
-                defaultValue={editingProduct?.image}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
-              <Input
-                name="slug"
-                defaultValue={editingProduct?.slug}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div>
               <label className="block text-sm font-medium mb-1">Danh mục</label>
-              <Input
-                name="category"
-                defaultValue={editingProduct?.category}
+              <select
+                name="categoryId"
+                defaultValue={editingProduct?.categoryId}
+                className="w-full border rounded-md px-3 py-2"
                 required
                 disabled={isLoading}
-              />
+              >
+                <option value="">Chọn danh mục</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Màu sắc</label>
               <Input
                 name="color"
                 defaultValue={editingProduct?.color || ''}
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Trạng thái</label>
+              <select
+                name="status"
+                defaultValue={editingProduct?.status || 'IN_STOCK'}
+                className="w-full border rounded-md px-3 py-2"
+                required
+                disabled={isLoading}
+              >
+                <option value="IN_STOCK">Còn hàng</option>
+                <option value="OUT_OF_STOCK">Hết hàng</option>
+                <option value="LOW_STOCK">Sắp hết hàng</option>
+                <option value="DISCONTINUED">Ngừng kinh doanh</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Số lượng tồn kho</label>
+              <Input
+                type="number"
+                name="stockQuantity"
+                defaultValue={editingProduct?.stockQuantity || 0}
+                min="0"
+                required
+                disabled={isLoading}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Hình ảnh</label>
+              <Input
+                type="file"
+                name="images"
+                multiple
+                accept="image/*"
                 disabled={isLoading}
               />
             </div>
