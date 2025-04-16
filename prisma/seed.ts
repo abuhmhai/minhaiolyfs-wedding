@@ -3,6 +3,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const categories = [
+  { name: 'Áo cưới', slug: 'ao-cuoi' },
   { name: 'Ball Gown', slug: 'ball-gown' },
   { name: 'A-Line', slug: 'a-line' },
   { name: 'Mermaid', slug: 'mermaid' },

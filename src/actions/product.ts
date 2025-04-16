@@ -19,7 +19,15 @@ export async function getProducts({
         { description: { contains: search, mode: "insensitive" } },
       ],
     }),
-    ...(category && { category: { slug: category } }),
+    ...(category && {
+      OR: category === 'ao-cuoi' 
+        ? [
+            { category: { slug: 'ball-gown' } },
+            { category: { slug: 'a-line' } },
+            { category: { slug: 'mermaid' } }
+          ]
+        : [{ category: { slug: category } }]
+    }),
   };
 
   const [products, total] = await Promise.all([

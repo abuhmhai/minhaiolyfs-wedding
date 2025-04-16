@@ -8,15 +8,16 @@ export async function POST(request: Request) {
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const price = parseFloat(formData.get("price") as string);
-    const categoryId = formData.get("categoryId");
+    const categoryId = parseInt(formData.get("categoryId") as string);
     const color = formData.get("color") as string;
     const status = formData.get("status") as ProductStatus;
     const stockQuantity = parseInt(formData.get("stockQuantity") as string);
-    const images = formData.getAll("images") as string[];
+    const images = formData.getAll("images") as File[];
+    const existingImages = formData.getAll("existingImages") as string[];
 
-    if (!categoryId) {
+    if (!name || !price || !categoryId) {
       return NextResponse.json(
-        { error: 'Category ID is required' },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -25,36 +26,56 @@ export async function POST(request: Request) {
     const slug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)+/g, "");
+      .replace(/(^-|-$)/g, "");
 
-    // Create product
-    const product = await prisma.product.create({
-      data: {
-        name,
-        description,
-        price,
-        color,
-        status,
-        stockQuantity,
-        slug,
-        category: {
-          connect: {
-            id: Number(categoryId)
-          }
-        },
-        images: {
-          create: images.map(url => ({
-            url: url
-          }))
-        },
-      },
-    });
+    try {
+      // Prepare image data
+      let imageData = undefined;
+      if (images.length > 0) {
+        imageData = {
+          create: await Promise.all(
+            images.map(async (image) => {
+              return {
+                url: image.name,
+              };
+            })
+          ),
+        };
+      } else if (existingImages.length > 0) {
+        imageData = {
+          create: existingImages.map((url) => ({
+            url,
+          })),
+        };
+      }
 
-    return NextResponse.json(product);
+      // Create product
+      const product = await prisma.product.create({
+        data: {
+          name,
+          description,
+          price,
+          categoryId,
+          color,
+          status,
+          stockQuantity,
+          slug,
+          images: imageData,
+        },
+      });
+
+      return NextResponse.json(product);
+    } catch (error) {
+      console.error("Error creating product:", error);
+      return NextResponse.json(
+        { error: "Failed to create product" },
+        { status: 500 }
+      );
+    }
   } catch (error) {
-    console.error("Error creating product:", error);
+    console.error("Error processing request:", error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

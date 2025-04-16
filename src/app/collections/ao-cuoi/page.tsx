@@ -1,96 +1,26 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
-
-const weddingDresses = [
-  {
-    id: '1',
-    name: 'LUMINA - VLTX-901 LUXURY ÁO CƯỚI IVORY STRAIGHT ACROSS CHAPLE TRAIN LACE',
-    price: '18,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/lumina-vltx-901.png',
-    slug: 'lumina-vltx-901-luxury-ao-cuoi-ivory-straight-across-chaple-train-lace',
-    category: 'ao-cuoi',
-    color: 'ivory',
-  },
-  {
-    id: '2',
-    name: 'CELESTE - VPFA-902 PREMIUM ÁO CƯỚI OFFWHITE GODDESS COURT TRAIN LACE',
-    price: '16,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/celeste-vpfa-902.png',
-    slug: 'celeste-vpfa-902-premium-ao-cuoi-offwhite-goddess-court-train-lace',
-    category: 'ao-cuoi',
-    color: 'offwhite',
-  },
-  {
-    id: '3',
-    name: 'VALORA - VPFA-742 PREMIUM NUDE BALL GOWN IVORY GODDESS COURT TRAIN LACE',
-    price: '25,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/valora-vpfa-742.png',
-    slug: 'valora-vpfa-742-premium-nude-ball-gown-ivory-goddess-court-train-lace',
-    category: 'ball-gown',
-    color: 'ivory',
-  },
-  {
-    id: '4',
-    name: 'AMARIS - VLTX-734 LUXURY BALL GOWN OFFWHITE MINIMALIST STRAIGHT ACROSS CHAPLE TRAIN SIMPLE',
-    price: '24,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/amaris-vltx-734.png',
-    slug: 'amaris-vltx-734-luxury-ball-gown-offwhite-minimalist-straight-across-chaple-train-simple',
-    category: 'ball-gown',
-    color: 'offwhite',
-  },
-  {
-    id: '5',
-    name: 'SERENA - VLTX-801 LUXURY BALL GOWN IVORY STRAIGHT ACROSS CHAPLE TRAIN LACE',
-    price: '22,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/4261772681.png',
-    slug: 'serena-vltx-801-luxury-ball-gown-ivory-straight-across-chaple-train-lace',
-    category: 'ball-gown',
-    color: 'ivory',
-  },
-  {
-    id: '6',
-    name: 'ISABELLA - VPFA-802 PREMIUM BALL GOWN OFFWHITE GODDESS COURT TRAIN LACE',
-    price: '19,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/3972856577.png',
-    slug: 'isabella-vpfa-802-premium-ball-gown-offwhite-goddess-court-train-lace',
-    category: 'ball-gown',
-    color: 'offwhite',
-  },
-  {
-    id: '7',
-    name: 'VICTORIA - VPFA-803 PREMIUM A-LINE IVORY BLING & GLAM SWEEP TRAIN HEAVY BEADED',
-    price: '25,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/1470023077.png',
-    slug: 'victoria-vpfa-803-premium-a-line-ivory-bling-glam-sweep-train-heavy-beaded',
-    category: 'a-line',
-    color: 'ivory',
-  },
-  {
-    id: '8',
-    name: 'ELEANOR - VLTX-804 LUXURY BALL GOWN NUDE FLORAL SPAGHETTI STRAP COURT TRAIN FLORAL LACE',
-    price: '28,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/3092527618.png',
-    slug: 'eleanor-vltx-804-luxury-ball-gown-nude-floral-spaghetti-strap-court-train-floral-lace',
-    category: 'ball-gown',
-    color: 'nude',
-  },
-  {
-    id: '9',
-    name: 'CHARLOTTE - VPFA-805 PREMIUM A-LINE OFFWHITE ELEGANT OFF-SHOUDER FLOOR LENGTH SIMPLE',
-    price: '21,000,000₫',
-    image: 'https://ext.same-assets.com/44608533/3671199880.png',
-    slug: 'charlotte-vpfa-805-premium-a-line-offwhite-elegant-off-shouder-floor-length-simple',
-    category: 'a-line',
-    color: 'offwhite',
-  }
-];
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type FilterCategory = 'style' | 'color' | 'price';
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: { url: string }[];
+  slug: string;
+  category: {
+    slug: string;
+  };
+  color: string;
+  createdAt: string; // ISO date string
+}
 
 const AoCuoiCollection = () => {
   const [expandedFilters, setExpandedFilters] = useState<FilterCategory[]>(['style', 'color', 'price']);
@@ -98,13 +28,34 @@ const AoCuoiCollection = () => {
   const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 80000000]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [sortOrder, setSortOrder] = useState<string>('featured');
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products?category=ao-cuoi');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data.products || []);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleFilter = (category: FilterCategory) => {
-    if (expandedFilters.includes(category)) {
-      setExpandedFilters(expandedFilters.filter(f => f !== category));
-    } else {
-      setExpandedFilters([...expandedFilters, category]);
-    }
+    setExpandedFilters(prev =>
+      prev.includes(category)
+        ? prev.filter(item => item !== category)
+        : [...prev, category]
+    );
   };
 
   const toggleMobileFilter = () => {
@@ -112,16 +63,36 @@ const AoCuoiCollection = () => {
   };
 
   const filterProducts = () => {
-    return weddingDresses.filter(dress => {
-      if (selectedStyle && dress.category !== selectedStyle) return false;
-      if (selectedColor && dress.color !== selectedColor) return false;
-
-      const price = parseInt(dress.price.replace(/[^0-9]/g, ''));
-      if (price < priceRange[0] || price > priceRange[1]) return false;
-
+    let filtered = products.filter(product => {
+      if (selectedStyle && product.category.slug !== selectedStyle) return false;
+      if (selectedColor && product.color !== selectedColor) return false;
+      if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
       return true;
     });
+
+    // Apply sorting with null checks
+    return [...filtered].sort((a, b) => {
+      if (!a || !b) return 0;
+      
+      switch (sortOrder) {
+        case 'price-asc':
+          return (a.price || 0) - (b.price || 0);
+        case 'price-desc':
+          return (b.price || 0) - (a.price || 0);
+        case 'newest':
+          // Sort by createdAt date, fallback to ID if no date
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return dateB - dateA;
+        default: // 'featured'
+          return 0;
+      }
+    });
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   const filteredProducts = filterProducts();
 
@@ -328,12 +299,17 @@ const AoCuoiCollection = () => {
         <div className="md:w-3/4">
           <div className="mb-6 flex justify-between items-center">
             <p className="text-gray-600">1 - {filteredProducts.length} of {filteredProducts.length} products</p>
-            <select className="border border-gray-300 rounded-sm p-2 text-sm">
-              <option value="featured">Featured</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="newest">Newest</option>
-            </select>
+            <Select value={sortOrder} onValueChange={setSortOrder}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="featured">Featured</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -341,7 +317,7 @@ const AoCuoiCollection = () => {
               <Link href={`/products/${product.slug}`} key={product.id} className="group">
                 <div className="relative overflow-hidden">
                   <Image
-                    src={product.image}
+                    src={product.images[0].url}
                     alt={product.name}
                     width={400}
                     height={600}
@@ -350,7 +326,7 @@ const AoCuoiCollection = () => {
                 </div>
                 <div className="mt-4 text-center">
                   <h3 className="text-sm font-medium">{product.name}</h3>
-                  <p className="mt-1 text-gray-700">{product.price}</p>
+                  <p className="mt-1 text-gray-700">{product.price.toLocaleString()}₫</p>
                 </div>
               </Link>
             ))}

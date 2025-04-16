@@ -13,38 +13,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useSession, signOut } from "next-auth/react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
-  const [user, setUser] = useState<{ fullName: string; email: string; role: string } | null>(null);
+  const { data: session } = useSession();
   const { items } = useCart();
 
-  useEffect(() => {
-    // Check if user is logged in
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
   const handleSignOut = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-      setUser(null);
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
+    await signOut({ callbackUrl: '/' });
   };
 
   const toggleMenu = () => {
@@ -65,12 +43,12 @@ const Header = () => {
           </Link>
         </div>
         <div className="flex items-center space-x-2">
-          {user ? (
+          {session?.user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="text-white hover:text-gray-200">
                   <User className="h-4 w-4 mr-2" />
-                  {user.fullName}
+                  {session.user.name}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -80,9 +58,9 @@ const Header = () => {
                     Thông tin tài khoản
                   </Link>
                 </DropdownMenuItem>
-                {user.role === 'admin' && (
+                {session.user.role === 'admin' && (
                   <DropdownMenuItem>
-                    <Link href="/admin/products" className="flex items-center w-full">
+                    <Link href="/admin" className="flex items-center w-full">
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Quản lý sản phẩm
                     </Link>
@@ -102,11 +80,11 @@ const Header = () => {
             </DropdownMenu>
           ) : (
             <>
-              <Link href="/account/register" className="hover:underline">
+              <Link href="/register" className="hover:underline">
                 Đăng ký
               </Link>
               <span>|</span>
-              <Link href="/account/login" className="hover:underline">
+              <Link href="/login" className="hover:underline">
                 Đăng nhập
               </Link>
             </>

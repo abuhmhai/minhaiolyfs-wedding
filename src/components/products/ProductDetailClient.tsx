@@ -35,7 +35,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
     setRentalEndDate(endDate);
   };
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!rentalStartDate || !rentalEndDate) {
       toast.error('Vui lòng chọn thời gian thuê');
       return;
@@ -51,21 +51,42 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       return;
     }
 
-    const cartItem = {
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.images[0]?.url || '/placeholder.jpg',
-      quantity: quantity,
-      rentalStartDate: rentalStartDate,
-      rentalEndDate: rentalEndDate,
-      color: selectedColor,
-      type: 'rental',
-      style: selectedStyle,
-    };
+    try {
+      const transformedProduct = {
+        ...product,
+        images: product.images.map(img => ({
+          id: 0,
+          url: img.url
+        }))
+      };
 
-    addItem(cartItem);
-    toast.success('Đã thêm vào giỏ hàng');
+      const cartItem = {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.images[0]?.url || '/placeholder.jpg',
+        quantity: quantity,
+        rentalStartDate: rentalStartDate,
+        rentalEndDate: rentalEndDate,
+        color: selectedColor,
+        type: 'rental',
+        style: selectedStyle,
+        product: transformedProduct
+      };
+
+      await addItem(cartItem);
+      toast.success('Đã thêm vào giỏ hàng');
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message.includes('login')) {
+          toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+        } else {
+          toast.error(error.message || 'Không thể thêm sản phẩm vào giỏ hàng');
+        }
+      } else {
+        toast.error('Không thể thêm sản phẩm vào giỏ hàng');
+      }
+    }
   };
 
   const isOutOfStock = product.stockQuantity <= 0;
@@ -123,13 +144,16 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <Link 
-                  href={`/collections/${product.category.name === 'Áo dài cô dâu' ? 'ao-dai-co-dau' : 
-                         product.category.name === 'Áo cưới' ? 'ao-cuoi' : 
-                         product.category.name.toLowerCase().replace(/\s+/g, '-')}`} 
-                  className="text-gray-700 hover:text-gray-900"
-                >
-                  {product.category.name}
+                <Link href="/collections" className="text-gray-700 hover:text-gray-900">
+                  Danh mục
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="flex items-center">
+                <span className="mx-2 text-gray-400">/</span>
+                <Link href="/collections/ao-dai-co-dau" className="text-gray-700 hover:text-gray-900">
+                  Áo dài
                 </Link>
               </div>
             </li>
@@ -191,11 +215,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 <span className="text-amber-600 font-medium">
                   Sắp hết hàng (Còn {product.stockQuantity} sản phẩm)
                 </span>
-              ) : (
-                <span className="text-green-600 font-medium">
-                  Còn hàng ({product.stockQuantity} sản phẩm)
-                </span>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -249,17 +269,56 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <label htmlFor="color" className="block text-sm font-medium text-gray-700">
                 Màu sắc
               </label>
-              <select
-                id="color"
-                value={selectedColor}
-                onChange={(e) => setSelectedColor(e.target.value)}
-                className="w-full border border-gray-300 rounded-md p-2.5 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-pointer"
-              >
-                <option value="OFFWHITE">OFFWHITE</option>
-                <option value="IVORY">IVORY</option>
-                <option value="BLUSH">BLUSH</option>
-                <option value="CHAMPAGNE">CHAMPAGNE</option>
-              </select>
+              <div className="flex gap-3">
+                {product.color === 'red' && (
+                  <button 
+                    type="button"
+                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                      selectedColor === 'red' 
+                        ? 'bg-amber-800 text-white' 
+                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setSelectedColor('red')}
+                  >
+                    <span className="flex items-center">
+                      <span className="w-4 h-4 rounded-full bg-red-600 mr-2"></span>
+                      Đỏ
+                    </span>
+                  </button>
+                )}
+                {product.color === 'pink' && (
+                  <button 
+                    type="button"
+                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                      selectedColor === 'pink' 
+                        ? 'bg-amber-800 text-white' 
+                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setSelectedColor('pink')}
+                  >
+                    <span className="flex items-center">
+                      <span className="w-4 h-4 rounded-full bg-pink-400 mr-2"></span>
+                      Hồng
+                    </span>
+                  </button>
+                )}
+                {product.color === 'white' && (
+                  <button 
+                    type="button"
+                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                      selectedColor === 'white' 
+                        ? 'bg-amber-800 text-white' 
+                        : 'bg-white border border-gray-300 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setSelectedColor('white')}
+                  >
+                    <span className="flex items-center">
+                      <span className="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></span>
+                      Trắng
+                    </span>
+                  </button>
+                )}
+              </div>
             </div>
 
             <p className="text-sm text-blue-600 underline cursor-pointer hover:text-blue-800">
@@ -297,10 +356,6 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
             <Button variant="outline" className="w-full py-2.5 border-amber-800 text-amber-800 hover:bg-amber-50 rounded-md">
               REVIEW TỪ KHÁCH HÀNG
-            </Button>
-
-            <Button variant="outline" className="w-full py-2.5 border-gray-300 text-gray-700 rounded-md">
-              HẾT HÀNG
             </Button>
 
             {/* Share buttons */}

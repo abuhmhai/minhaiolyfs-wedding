@@ -16,21 +16,32 @@ export async function GET(request: Request) {
     let where = {};
 
     if (categorySlug) {
-      const category = await prisma.category.findUnique({
-        where: { slug: categorySlug }
-      });
-
-      if (!category) {
-        return NextResponse.json({
-          products: [],
-          total: 0,
-          pages: 0
+      if (categorySlug === 'ao-cuoi') {
+        // For ao-cuoi category, show all wedding dresses
+        where = {
+          OR: [
+            { category: { slug: 'ball-gown' } },
+            { category: { slug: 'a-line' } },
+            { category: { slug: 'mermaid' } }
+          ]
+        };
+      } else {
+        const category = await prisma.category.findUnique({
+          where: { slug: categorySlug }
         });
-      }
 
-      where = {
-        categoryId: category.id
-      };
+        if (!category) {
+          return NextResponse.json({
+            products: [],
+            total: 0,
+            pages: 0
+          });
+        }
+
+        where = {
+          categoryId: category.id
+        };
+      }
     }
 
     if (search) {

@@ -37,7 +37,7 @@ export async function POST(request: Request) {
         fullName,
         phone,
         address,
-        role: 'admin',
+        role: 'user',
       },
     });
 
