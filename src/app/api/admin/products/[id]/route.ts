@@ -114,15 +114,41 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.product.delete({
-      where: { id: parseInt(params.id) },
-    });
+    const productId = parseInt(params.id);
+
+    // First delete all related records
+    await prisma.$transaction([
+      // Delete cart items
+      prisma.cartItem.deleteMany({
+        where: { productId }
+      }),
+      // Delete order items
+      prisma.orderItem.deleteMany({
+        where: { productId }
+      }),
+      // Delete product images
+      prisma.productImage.deleteMany({
+        where: { productId }
+      }),
+      // Delete product sizes
+      prisma.productSize.deleteMany({
+        where: { productId }
+      }),
+      // Delete product rental durations
+      prisma.productRentalDuration.deleteMany({
+        where: { productId }
+      }),
+      // Finally delete the product
+      prisma.product.delete({
+        where: { id: productId }
+      })
+    ]);
 
     return NextResponse.json({ message: 'Product deleted successfully' });
   } catch (error) {
     console.error('Error deleting product:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Failed to delete product' },
       { status: 500 }
     );
   }

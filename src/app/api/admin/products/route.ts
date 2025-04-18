@@ -2,6 +2,59 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { ProductStatus } from '@prisma/client';
 
+const getStatusBasedOnQuantity = (quantity: number): ProductStatus => {
+  if (quantity <= 0) {
+    return ProductStatus.OUT_OF_STOCK;
+  } else if (quantity < 10) {
+    return ProductStatus.LOW_STOCK;
+  } else {
+    return ProductStatus.IN_STOCK;
+  }
+};
+
+export async function GET() {
+  try {
+    const products = await prisma.product.findMany({
+      include: {
+        category: {
+          select: {
+            name: true,
+          },
+        },
+        images: {
+          select: {
+            url: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Update status based on stock quantity
+    const updatedProducts = await Promise.all(
+      products.map(async (product) => {
+        const newStatus = getStatusBasedOnQuantity(product.stockQuantity);
+        // Always update the status to ensure it matches the stock quantity
+        await prisma.product.update({
+          where: { id: product.id },
+          data: { status: newStatus },
+        });
+        return { ...product, status: newStatus };
+      })
+    );
+
+    return NextResponse.json(updatedProducts);
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -10,7 +63,6 @@ export async function POST(request: Request) {
     const price = parseFloat(formData.get("price") as string);
     const categoryId = parseInt(formData.get("categoryId") as string);
     const color = formData.get("color") as string;
-    const status = formData.get("status") as ProductStatus;
     const stockQuantity = parseInt(formData.get("stockQuantity") as string);
     const images = formData.getAll("images") as File[];
     const existingImages = formData.getAll("existingImages") as string[];
@@ -27,6 +79,9 @@ export async function POST(request: Request) {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+
+    // Determine status based on stock quantity
+    const status = getStatusBasedOnQuantity(stockQuantity);
 
     try {
       // Prepare image data

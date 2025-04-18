@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useUserStore } from '@/store/userStore';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,9 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const user = useUserStore((state) => state.user);
-  const setUser = useUserStore((state) => state.setUser);
-  const updateUser = useUserStore((state) => state.updateUser);
+  const { data: session, status, update } = useSession();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -26,11 +24,21 @@ export default function ProfilePage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+      if (status === 'loading') return;
+      
+      if (status === 'unauthenticated') {
+        router.push('/login');
+        return;
+      }
+
       try {
-        const response = await fetch('/api/auth/me');
+        setIsLoading(true);
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include',
+        });
+        
         if (response.ok) {
           const data = await response.json();
-          setUser(data.user);
           setFormData({
             fullName: data.user.fullName,
             email: data.user.email,
@@ -38,7 +46,7 @@ export default function ProfilePage() {
             address: data.user.address || '',
           });
         } else if (response.status === 401) {
-          router.push('/account/login');
+          router.push('/login');
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -49,7 +57,7 @@ export default function ProfilePage() {
     };
 
     fetchUserData();
-  }, [setUser, router]);
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,8 +93,15 @@ export default function ProfilePage() {
         throw new Error(data.message || 'Cập nhật thất bại');
       }
 
-      // Update user in store
-      updateUser(formData);
+      // Update session with new user data
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          name: formData.fullName,
+        },
+      });
+
       setIsEditing(false);
       setMessage('Cập nhật thành công');
     } catch (err) {
@@ -106,14 +121,15 @@ export default function ProfilePage() {
     e.preventDefault();
     setIsEditing(false);
     setFormData({
-      fullName: user?.fullName || '',
-      email: user?.email || '',
-      phone: user?.phone || '',
-      address: user?.address || '',
+      fullName: session?.user?.name || '',
+      email: session?.user?.email || '',
+      phone: '',
+      address: '',
     });
   };
 
-  if (isLoading) {
+  // Show loading state while checking authentication
+  if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -121,7 +137,8 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user) {
+  // Show login form if not authenticated
+  if (status === 'unauthenticated' || !session?.user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
@@ -130,7 +147,7 @@ export default function ProfilePage() {
             <CardDescription>Vui lòng đăng nhập để xem thông tin tài khoản</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <Button onClick={() => router.push('/account/login')}>Đăng nhập</Button>
+            <Button onClick={() => router.push('/login')}>Đăng nhập</Button>
           </CardContent>
         </Card>
       </div>
@@ -235,24 +252,16 @@ export default function ProfilePage() {
                   <>
                     <Button
                       type="submit"
-                      className="w-full bg-amber-800 hover:bg-amber-900"
                       disabled={isSubmitting}
+                      className="w-full bg-amber-800 hover:bg-amber-900"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Đang lưu...
-                        </>
-                      ) : (
-                        'Lưu thay đổi'
-                      )}
+                      {isSubmitting ? 'Đang cập nhật...' : 'Lưu thay đổi'}
                     </Button>
                     <Button
                       type="button"
-                      variant="outline"
                       onClick={handleCancelClick}
-                      className="w-full border-amber-800 text-amber-800 hover:bg-amber-50"
-                      disabled={isSubmitting}
+                      variant="outline"
+                      className="w-full"
                     >
                       Hủy
                     </Button>
@@ -265,4 +274,4 @@ export default function ProfilePage() {
       </div>
     </div>
   );
-} 
+}

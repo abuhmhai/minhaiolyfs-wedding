@@ -1,30 +1,26 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { verifyToken } from '@/utils/jwt';
-import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
+    const session = await getServerSession(authOptions);
 
-    if (!token) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const payload = await verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     // Get user information
     const user = await prisma.user.findUnique({
-      where: { id: payload.id },
+      where: { email: session.user.email },
       select: {
         id: true,
         email: true,
         fullName: true,
         role: true,
+        phone: true,
+        address: true,
       },
     });
 

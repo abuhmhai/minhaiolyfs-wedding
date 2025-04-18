@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
@@ -22,7 +22,14 @@ const Header = () => {
   const { items } = useCart();
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' });
+    try {
+      await signOut({ 
+        callbackUrl: '/',
+        redirect: true 
+      });
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   const toggleMenu = () => {
@@ -60,7 +67,7 @@ const Header = () => {
                 </DropdownMenuItem>
                 {session.user.role === 'admin' && (
                   <DropdownMenuItem>
-                    <Link href="/admin" className="flex items-center w-full">
+                    <Link href="/admin/products" className="flex items-center w-full">
                       <ShoppingBag className="h-4 w-4 mr-2" />
                       Quản lý sản phẩm
                     </Link>
