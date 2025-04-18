@@ -115,10 +115,18 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       formDataObj.append('stockQuantity', formData.stockQuantity.toString());
       formDataObj.append('status', formData.status);
       
-      // Add existing images
-      formData.images.forEach((url: string) => {
-        formDataObj.append('existingImages', url);
-      });
+      // Handle images properly
+      if (product) {
+        // When editing, only send the current set of images
+        formData.images.forEach((url: string) => {
+          formDataObj.append('existingImages', url);
+        });
+      } else {
+        // When creating new product, send all images
+        formData.images.forEach((url: string) => {
+          formDataObj.append('images', url);
+        });
+      }
 
       const response = await fetch(`/api/admin/products${product ? `/${product.id}` : ''}`, {
         method: product ? 'PUT' : 'POST',

@@ -46,29 +46,15 @@ export async function PUT(
       .replace(/(^-|-$)/g, "");
 
     try {
-      // First, delete existing images if we're not keeping them
-      if (images.length > 0 || existingImages.length === 0) {
-        console.log("Deleting existing images");
-        await prisma.productImage.deleteMany({
-          where: { productId: parseInt(params.id) }
-        });
-      }
+      // First, delete all existing images
+      await prisma.productImage.deleteMany({
+        where: { productId: parseInt(params.id) }
+      });
 
       // Prepare image data
       let imageData = undefined;
-      if (images.length > 0) {
-        console.log("Processing new images");
-        imageData = {
-          create: await Promise.all(
-            images.map(async (image) => {
-              return {
-                url: image.name,
-              };
-            })
-          ),
-        };
-      } else if (existingImages.length > 0) {
-        console.log("Keeping existing images");
+      if (existingImages.length > 0) {
+        console.log("Setting existing images");
         imageData = {
           create: existingImages.map((url) => ({
             url,
