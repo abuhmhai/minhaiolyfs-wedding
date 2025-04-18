@@ -173,11 +173,6 @@ const Header = () => {
               </Link>
             </li>
             <li>
-              <Link href="/blogs/all" className="text-gray-700 hover:text-gray-900">
-                TIN TỨC
-              </Link>
-            </li>
-            <li>
               <Link href="https://www.facebook.com/NhungTrangWeddingHouse" className="text-gray-700 hover:text-gray-900">
                 FANPAGE
               </Link>
@@ -284,11 +279,6 @@ const Header = () => {
               <li>
                 <Link href="/testimonials" className="block py-2 border-b border-gray-200">
                   TESTIMONIALS
-                </Link>
-              </li>
-              <li>
-                <Link href="/blogs/all" className="block py-2 border-b border-gray-200">
-                  TIN TỨC
                 </Link>
               </li>
               <li>

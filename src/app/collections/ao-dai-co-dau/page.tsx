@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
+import { ChevronDown, ChevronUp, Filter, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { prisma } from '@/lib/prisma';
 
@@ -27,12 +27,14 @@ const AoDaiCollection = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 8000000]);
   const [sortOrder, setSortOrder] = useState<string>('featured');
   const [products, setProducts] = useState<AoDaiProduct[]>([]);
+  const [originalProducts, setOriginalProducts] = useState<AoDaiProduct[]>([]);
 
   React.useEffect(() => {
     async function fetchProducts() {
       const response = await fetch('/api/products/ao-dai-co-dau');
       const data = await response.json();
       setProducts(data);
+      setOriginalProducts(data);
     }
     fetchProducts();
   }, []);
@@ -234,7 +236,27 @@ const AoDaiCollection = () => {
 
         {/* Products grid */}
         <div className="md:w-3/4">
-          <div className="flex justify-end mb-6">
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm áo dài..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    if (searchTerm === '') {
+                      setProducts(originalProducts);
+                    } else {
+                      setProducts(originalProducts.filter(product => 
+                        product.name.toLowerCase().includes(searchTerm)
+                      ));
+                    }
+                  }}
+                />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
             <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sắp xếp theo" />

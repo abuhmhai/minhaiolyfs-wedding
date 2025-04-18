@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, ChevronUp, Filter } from 'lucide-react';
+import { ChevronDown, ChevronUp, Filter, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type FilterCategory = 'style' | 'color' | 'price';
@@ -29,6 +29,7 @@ const AoCuoiCollection = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 80000000]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<string>('featured');
 
@@ -41,7 +42,9 @@ const AoCuoiCollection = () => {
       const response = await fetch('/api/products?category=ao-cuoi');
       if (response.ok) {
         const data = await response.json();
-        setProducts(data.products || []);
+        const productsData = data.products || [];
+        setProducts(productsData);
+        setOriginalProducts(productsData);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -298,7 +301,26 @@ const AoCuoiCollection = () => {
         {/* Products grid */}
         <div className="md:w-3/4">
           <div className="mb-6 flex justify-between items-center">
-            <p className="text-gray-600">1 - {filteredProducts.length} of {filteredProducts.length} products</p>
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm áo cưới..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  onChange={(e) => {
+                    const searchTerm = e.target.value.toLowerCase();
+                    if (searchTerm === '') {
+                      setProducts(originalProducts);
+                    } else {
+                      setProducts(originalProducts.filter(product => 
+                        product.name.toLowerCase().includes(searchTerm)
+                      ));
+                    }
+                  }}
+                />
+                <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              </div>
+            </div>
             <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Sort by" />
