@@ -13,7 +13,9 @@ import { toast } from 'sonner';
 interface ProductDetailClientProps {
   product: Product & {
     images: { url: string }[];
-    category: { name: string };
+    category: { name: string; slug: string };
+    style?: string | null;
+    color?: string | null;
   };
 }
 
@@ -22,9 +24,11 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   const [quantity, setQuantity] = useState(1);
   const [rentalStartDate, setRentalStartDate] = useState<Date | null>(null);
   const [rentalEndDate, setRentalEndDate] = useState<Date | null>(null);
-  const [selectedColor, setSelectedColor] = useState(product.color || 'OFFWHITE');
-  const [selectedStyle, setSelectedStyle] = useState('full set');
+  const [selectedColor, setSelectedColor] = useState(product.color || '');
+  const [selectedStyle, setSelectedStyle] = useState(product.style || '');
   const { addItem } = useCart();
+  const isWeddingDress = product.category.slug === 'ao-cuoi';
+  const isAoDai = product.category.slug === 'ao-dai-co-dau';
 
   const handleThumbnailClick = (image: string) => {
     setMainImage(image);
@@ -36,7 +40,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   };
 
   const handleAddToCart = async () => {
-    if (!rentalStartDate) {
+    if (isWeddingDress && !rentalStartDate) {
       toast.error('Vui lòng chọn ngày thuê');
       return;
     }
@@ -46,8 +50,13 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       return;
     }
 
-    if (!selectedColor || !selectedStyle) {
-      toast.error('Vui lòng chọn đầy đủ thông tin sản phẩm');
+    if (!selectedColor) {
+      toast.error('Vui lòng chọn màu sắc');
+      return;
+    }
+
+    if (isWeddingDress && !selectedStyle) {
+      toast.error('Vui lòng chọn kiểu dáng');
       return;
     }
 
@@ -66,10 +75,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         price: product.price,
         image: product.images[0]?.url || '/placeholder.jpg',
         quantity: quantity,
-        rentalStartDate: rentalStartDate,
-        rentalEndDate: rentalStartDate,
+        rentalStartDate: isWeddingDress ? rentalStartDate! : new Date(),
+        rentalEndDate: isWeddingDress ? rentalStartDate! : new Date(),
         color: selectedColor,
-        type: 'rental',
+        type: isWeddingDress ? 'rental' : 'purchase',
         style: selectedStyle,
         product: transformedProduct
       };
@@ -95,7 +104,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   // Mock data for product details - replace with actual data from your database
   const productDetails = {
     color: product.color || 'OFFWHITE',
-    style: product.category.name.toUpperCase(),
+    style: product.style || product.category.name.toUpperCase(),
     size: 'S',
     material: 'Crepe',
     neckline: 'Cúp ngực ngang',
@@ -223,101 +232,152 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             {/* Rental Date Picker */}
             <RentalDatePicker
               onDatesSelected={handleDatesSelected}
-              isDisabled={isOutOfStock}
+              isDisabled={isOutOfStock || !isWeddingDress}
             />
 
-            <div className="space-y-2">
-              <p className="block text-sm font-medium text-gray-700">Kiểu dáng</p>
-              <div className="flex gap-3">
-                <button 
-                  type="button"
-                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    selectedStyle === 'full set' 
-                      ? 'bg-amber-800 text-white' 
-                      : 'bg-white border border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedStyle('full set')}
-                >
-                  Full Set
-                </button>
-                <button 
-                  type="button"
-                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    selectedStyle === 'top' 
-                      ? 'bg-amber-800 text-white' 
-                      : 'bg-white border border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedStyle('top')}
-                >
-                  Top
-                </button>
-                <button 
-                  type="button"
-                  className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                    selectedStyle === 'bottom' 
-                      ? 'bg-amber-800 text-white' 
-                      : 'bg-white border border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setSelectedStyle('bottom')}
-                >
-                  Bottom
-                </button>
+            {rentalStartDate && (
+              <div className="text-sm text-gray-600">
+                Ngày thuê: {rentalStartDate.toLocaleDateString('vi-VN')}
               </div>
-            </div>
+            )}
 
-            <div className="space-y-2">
-              <label htmlFor="color" className="block text-sm font-medium text-gray-700">
-                Màu sắc
-              </label>
-              <div className="flex gap-3">
-                {product.color === 'red' && (
-                  <button 
-                    type="button"
-                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                      selectedColor === 'red' 
-                        ? 'bg-amber-800 text-white' 
-                        : 'bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setSelectedColor('red')}
-                  >
-                    <span className="flex items-center">
-                      <span className="w-4 h-4 rounded-full bg-red-600 mr-2"></span>
-                      Đỏ
-                    </span>
-                  </button>
-                )}
-                {product.color === 'pink' && (
-                  <button 
-                    type="button"
-                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                      selectedColor === 'pink' 
-                        ? 'bg-amber-800 text-white' 
-                        : 'bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setSelectedColor('pink')}
-                  >
-                    <span className="flex items-center">
-                      <span className="w-4 h-4 rounded-full bg-pink-400 mr-2"></span>
-                      Hồng
-                    </span>
-                  </button>
-                )}
-                {product.color === 'white' && (
-                  <button 
-                    type="button"
-                    className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
-                      selectedColor === 'white' 
-                        ? 'bg-amber-800 text-white' 
-                        : 'bg-white border border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setSelectedColor('white')}
-                  >
-                    <span className="flex items-center">
-                      <span className="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></span>
-                      Trắng
-                    </span>
-                  </button>
-                )}
+            <div className="space-y-4">
+              {isWeddingDress && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Kiểu dáng</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button 
+                      type="button"
+                      className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                        selectedStyle === 'dang-xoe-ballgown' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedStyle('dang-xoe-ballgown')}
+                    >
+                      Dáng xòe/Ballgown
+                    </button>
+                    <button 
+                      type="button"
+                      className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                        selectedStyle === 'dang-chu-a' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedStyle('dang-chu-a')}
+                    >
+                      Dáng chữ A
+                    </button>
+                    <button 
+                      type="button"
+                      className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                        selectedStyle === 'dang-duoi-ca-mermaid' 
+                          ? 'bg-blue-600 text-white' 
+                          : 'bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                      onClick={() => setSelectedStyle('dang-duoi-ca-mermaid')}
+                    >
+                      Dáng đuôi cá/Mermaid
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <p className="text-sm font-medium mb-2">Màu sắc</p>
+                <div className="flex flex-wrap gap-2">
+                  {isWeddingDress ? (
+                    <>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'offwhite' 
+                            ? 'bg-gray-100 text-gray-900' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('offwhite')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-gray-100 mr-2"></span>
+                          Offwhite
+                        </span>
+                      </button>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'ivory' 
+                            ? 'bg-amber-50 text-gray-900' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('ivory')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-amber-50 mr-2"></span>
+                          Ivory
+                        </span>
+                      </button>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'nude' 
+                            ? 'bg-amber-800 text-white' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('nude')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-amber-100 mr-2"></span>
+                          Nude
+                        </span>
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'do' 
+                            ? 'bg-red-600 text-white' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('do')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-red-600 mr-2"></span>
+                          Đỏ
+                        </span>
+                      </button>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'hong' 
+                            ? 'bg-pink-500 text-white' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('hong')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-pink-500 mr-2"></span>
+                          Hồng
+                        </span>
+                      </button>
+                      <button 
+                        type="button"
+                        className={`px-6 py-2.5 text-sm font-medium rounded-md transition-colors ${
+                          selectedColor === 'trang' 
+                            ? 'bg-white text-gray-900 border-2 border-gray-300' 
+                            : 'bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                        onClick={() => setSelectedColor('trang')}
+                      >
+                        <span className="flex items-center">
+                          <span className="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></span>
+                          Trắng
+                        </span>
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -345,7 +405,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <Button
                 className="flex-1 bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-md transition-colors"
                 onClick={handleAddToCart}
-                disabled={isOutOfStock || !rentalStartDate || !selectedColor || !selectedStyle}
+                disabled={isOutOfStock || 
+                  (isWeddingDress && !rentalStartDate) || 
+                  !selectedColor || 
+                  (isWeddingDress && !selectedStyle)}
               >
                 THÊM VÀO GIỎ HÀNG
               </Button>
@@ -408,12 +471,25 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   <p className="mb-2 font-medium">Thông số sản phẩm:</p>
                   <table className="w-full border-collapse">
                     <tbody>
-                      {Object.entries(productDetails).map(([key, value]) => (
-                        <tr key={key} className="border-b border-gray-200">
-                          <td className="py-2 pr-4 font-medium capitalize">{key === 'trainLength' ? 'Chiều dài đuôi' : key === 'suitableFor' ? 'Phù hợp sử dụng' : key}</td>
-                          <td className="py-2">{value}</td>
-                        </tr>
-                      ))}
+                      <tr className="border-b border-gray-200">
+                        <td className="py-2 pr-4 font-medium">Kiểu dáng</td>
+                        <td className="py-2">{product.style || 'Chưa cập nhật'}</td>
+                      </tr>
+                      <tr className="border-b border-gray-200">
+                        <td className="py-2 pr-4 font-medium">Màu sắc</td>
+                        <td className="py-2">{product.color || 'Chưa cập nhật'}</td>
+                      </tr>
+                      {Object.entries(productDetails).map(([key, value]) => {
+                        if (key !== 'style' && key !== 'color') {
+                          return (
+                            <tr key={key} className="border-b border-gray-200">
+                              <td className="py-2 pr-4 font-medium capitalize">{key === 'trainLength' ? 'Chiều dài đuôi' : key === 'suitableFor' ? 'Phù hợp sử dụng' : key}</td>
+                              <td className="py-2">{value}</td>
+                            </tr>
+                          );
+                        }
+                        return null;
+                      })}
                     </tbody>
                   </table>
                 </div>

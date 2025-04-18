@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
-import ProductForm from "@/components/admin/ProductForm";
+import { prisma } from '@/lib/prisma';
+import { notFound } from 'next/navigation';
+import ProductForm from '@/components/admin/ProductForm';
 
 interface EditProductPageProps {
   params: {
@@ -9,16 +9,19 @@ interface EditProductPageProps {
 }
 
 export default async function EditProductPage({ params }: EditProductPageProps) {
+  const productId = parseInt(params.id);
+  
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
-      where: { id: parseInt(params.id) },
+      where: { id: productId },
       include: {
         images: true,
+        category: true,
       },
     }),
     prisma.category.findMany({
       orderBy: {
-        name: "asc",
+        name: 'asc',
       },
     }),
   ]);

@@ -16,32 +16,12 @@ export async function GET(request: Request) {
     let where = {};
 
     if (categorySlug) {
-      if (categorySlug === 'ao-cuoi') {
-        // For ao-cuoi category, show all wedding dresses
-        where = {
-          OR: [
-            { category: { slug: 'ball-gown' } },
-            { category: { slug: 'a-line' } },
-            { category: { slug: 'mermaid' } }
-          ]
-        };
-      } else {
-        const category = await prisma.category.findUnique({
-          where: { slug: categorySlug }
-        });
-
-        if (!category) {
-          return NextResponse.json({
-            products: [],
-            total: 0,
-            pages: 0
-          });
+      console.log('Filtering by category:', categorySlug);
+      where = {
+        category: {
+          slug: categorySlug
         }
-
-        where = {
-          categoryId: category.id
-        };
-      }
+      };
     }
 
     if (search) {
@@ -53,6 +33,8 @@ export async function GET(request: Request) {
         ]
       };
     }
+
+    console.log('Final where clause:', where);
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -67,6 +49,8 @@ export async function GET(request: Request) {
       }),
       prisma.product.count({ where })
     ]);
+
+    console.log('Found products:', products.length);
 
     return NextResponse.json({
       products,

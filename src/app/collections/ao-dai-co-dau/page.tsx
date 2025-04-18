@@ -24,17 +24,24 @@ const AoDaiCollection = () => {
   const [expandedFilters, setExpandedFilters] = useState<FilterCategory[]>(['color', 'price']);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [priceRange, setPriceRange] = useState<[number, number]>([500000, 8000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000000]);
   const [sortOrder, setSortOrder] = useState<string>('featured');
   const [products, setProducts] = useState<AoDaiProduct[]>([]);
-  const [originalProducts, setOriginalProducts] = useState<AoDaiProduct[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  console.log('Initial filter states:', {
+    selectedColor,
+    priceRange,
+    sortOrder,
+    searchTerm
+  });
 
   React.useEffect(() => {
     async function fetchProducts() {
-      const response = await fetch('/api/products/ao-dai-co-dau');
+      const response = await fetch('/api/products?category=ao-dai-co-dau');
       const data = await response.json();
-      setProducts(data);
-      setOriginalProducts(data);
+      console.log('Fetched products:', data);
+      setProducts(data.products || []);
     }
     fetchProducts();
   }, []);
@@ -53,16 +60,27 @@ const AoDaiCollection = () => {
 
   const filterProducts = () => {
     if (!products || !Array.isArray(products)) {
+      console.log('No products array available');
       return [];
     }
     
+    console.log('Initial products:', products.length);
+    
     let filtered = products.filter(dress => {
-      if (selectedColor && dress.color !== selectedColor) return false;
+      if (selectedColor && dress.color !== selectedColor) {
+        console.log('Filtered out by color:', dress.name, dress.color);
+        return false;
+      }
 
-      if (dress.price < priceRange[0] || dress.price > priceRange[1]) return false;
+      if (dress.price < priceRange[0] || dress.price > priceRange[1]) {
+        console.log('Filtered out by price:', dress.name, dress.price);
+        return false;
+      }
 
       return true;
     });
+
+    console.log('After filtering:', filtered.length);
 
     // Apply sorting with proper null checks
     return [...filtered].sort((a, b) => {
@@ -84,7 +102,13 @@ const AoDaiCollection = () => {
     });
   };
 
-  const filteredProducts = filterProducts();
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const filteredProducts = filterProducts().filter(product => 
+    searchTerm === '' || product.name.toLowerCase().includes(searchTerm)
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -158,12 +182,12 @@ const AoDaiCollection = () => {
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      id="color-red"
+                      id="color-do"
                       className="mr-2"
-                      checked={selectedColor === 'red'}
-                      onChange={() => setSelectedColor(selectedColor === 'red' ? null : 'red')}
+                      checked={selectedColor === 'do'}
+                      onChange={() => setSelectedColor(selectedColor === 'do' ? null : 'do')}
                     />
-                    <label htmlFor="color-red" className="flex items-center">
+                    <label htmlFor="color-do" className="flex items-center">
                       <span className="w-4 h-4 rounded-full bg-red-600 mr-2"></span>
                       Đỏ
                     </label>
@@ -171,12 +195,12 @@ const AoDaiCollection = () => {
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      id="color-pink"
+                      id="color-hong"
                       className="mr-2"
-                      checked={selectedColor === 'pink'}
-                      onChange={() => setSelectedColor(selectedColor === 'pink' ? null : 'pink')}
+                      checked={selectedColor === 'hong'}
+                      onChange={() => setSelectedColor(selectedColor === 'hong' ? null : 'hong')}
                     />
-                    <label htmlFor="color-pink" className="flex items-center">
+                    <label htmlFor="color-hong" className="flex items-center">
                       <span className="w-4 h-4 rounded-full bg-pink-400 mr-2"></span>
                       Hồng
                     </label>
@@ -184,13 +208,13 @@ const AoDaiCollection = () => {
                   <div className="flex items-center">
                     <input
                       type="checkbox"
-                      id="color-white"
+                      id="color-trang"
                       className="mr-2"
-                      checked={selectedColor === 'white'}
-                      onChange={() => setSelectedColor(selectedColor === 'white' ? null : 'white')}
+                      checked={selectedColor === 'trang'}
+                      onChange={() => setSelectedColor(selectedColor === 'trang' ? null : 'trang')}
                     />
-                    <label htmlFor="color-white" className="flex items-center">
-                      <span className="w-4 h-4 rounded-full  mr-2"></span>
+                    <label htmlFor="color-trang" className="flex items-center">
+                      <span className="w-4 h-4 rounded-full bg-white border border-gray-300 mr-2"></span>
                       Trắng
                     </label>
                   </div>
@@ -216,8 +240,8 @@ const AoDaiCollection = () => {
                   <div className="flex items-center">
                     <input
                       type="range"
-                      min="500000"
-                      max="8000000"
+                      min="0"
+                      max="20000000"
                       step="500000"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
@@ -243,16 +267,8 @@ const AoDaiCollection = () => {
                   type="text"
                   placeholder="Tìm kiếm áo dài..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  onChange={(e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    if (searchTerm === '') {
-                      setProducts(originalProducts);
-                    } else {
-                      setProducts(originalProducts.filter(product => 
-                        product.name.toLowerCase().includes(searchTerm)
-                      ));
-                    }
-                  }}
+                  value={searchTerm}
+                  onChange={handleSearch}
                 />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>

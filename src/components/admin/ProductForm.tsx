@@ -9,6 +9,8 @@ interface ProductFormProps {
   product?: Product & {
     category: Category;
     images: { url: string }[];
+    style?: string;
+    color?: string;
   };
   categories: Category[];
 }
@@ -20,10 +22,12 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     name: product?.name || "",
     description: product?.description || "",
     price: product?.price || 0,
-    categoryId: product?.categoryId || "",
-    stockQuantity: product?.stockQuantity || "",
+    categoryId: product?.categoryId?.toString() || "",
+    stockQuantity: product?.stockQuantity?.toString() || "",
     status: product?.status || ProductStatus.IN_STOCK,
     images: product?.images.map(img => img.url) || [],
+    style: product?.style || "",
+    color: product?.color || "",
   });
 
   const [imageUrls, setImageUrls] = useState<string[]>(product?.images.map(img => img.url) || [""]);
@@ -111,9 +115,11 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       formDataObj.append('name', formData.name);
       formDataObj.append('description', formData.description || '');
       formDataObj.append('price', formData.price.toString());
-      formDataObj.append('categoryId', formData.categoryId.toString());
-      formDataObj.append('stockQuantity', formData.stockQuantity.toString());
+      formDataObj.append('categoryId', formData.categoryId);
+      formDataObj.append('stockQuantity', formData.stockQuantity);
       formDataObj.append('status', formData.status);
+      formDataObj.append('style', formData.style);
+      formDataObj.append('color', formData.color);
       
       // Handle images properly
       if (product) {
@@ -309,6 +315,56 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                       {category.name}
                     </option>
                   ))}
+                </select>
+              </div>
+
+              {/* Show style field only for wedding dresses */}
+              {formData.categoryId && categories.find(c => c.id === parseInt(formData.categoryId))?.slug === 'ao-cuoi' && (
+                <div>
+                  <label htmlFor="style" className="block text-sm font-medium text-gray-700 mb-1">
+                    Kiểu Dáng
+                  </label>
+                  <select
+                    id="style"
+                    value={formData.style}
+                    onChange={(e) => setFormData(prev => ({ ...prev, style: e.target.value }))}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    required
+                  >
+                    <option value="">Chọn kiểu dáng</option>
+                    <option value="dang-xoe-ballgown">Dáng xòe/Ballgown</option>
+                    <option value="dang-chu-a">Dáng chữ A</option>
+                    <option value="dang-duoi-ca-mermaid">Dáng đuôi cá/Mermaid</option>
+                  </select>
+                </div>
+              )}
+
+              {/* Show color field for both categories */}
+              <div>
+                <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
+                  Màu Sắc
+                </label>
+                <select
+                  id="color"
+                  value={formData.color}
+                  onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  required
+                >
+                  <option value="">Chọn màu sắc</option>
+                  {formData.categoryId && categories.find(c => c.id === parseInt(formData.categoryId))?.slug === 'ao-cuoi' ? (
+                    <>
+                      <option value="offwhite">Offwhite</option>
+                      <option value="ivory">Ivory</option>
+                      <option value="nude">Nude</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="do">Đỏ</option>
+                      <option value="hong">Hồng</option>
+                      <option value="trang">Trắng</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>

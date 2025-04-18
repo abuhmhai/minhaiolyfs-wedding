@@ -15,6 +15,7 @@ export async function PUT(
     const price = parseFloat(formData.get("price") as string);
     const categoryId = parseInt(formData.get("categoryId") as string);
     const color = formData.get("color") as string;
+    const style = formData.get("style") as string;
     const status = formData.get("status") as ProductStatus;
     const stockQuantity = parseInt(formData.get("stockQuantity") as string);
     const images = formData.getAll("images") as File[];
@@ -26,6 +27,7 @@ export async function PUT(
       price,
       categoryId,
       color,
+      style,
       status,
       stockQuantity,
       imagesCount: images.length,
@@ -37,6 +39,40 @@ export async function PUT(
         { error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    // Validate style and color based on category
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId }
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        { error: "Invalid category" },
+        { status: 400 }
+      );
+    }
+
+    if (category.slug === 'ao-cuoi') {
+      if (!style || !['dang-xoe-ballgown', 'dang-chu-a', 'dang-duoi-ca-mermaid'].includes(style)) {
+        return NextResponse.json(
+          { error: "Invalid style for wedding dress" },
+          { status: 400 }
+        );
+      }
+      if (!color || !['offwhite', 'ivory', 'nude'].includes(color)) {
+        return NextResponse.json(
+          { error: "Invalid color for wedding dress" },
+          { status: 400 }
+        );
+      }
+    } else if (category.slug === 'ao-dai-co-dau') {
+      if (!color || !['do', 'hong', 'trang'].includes(color)) {
+        return NextResponse.json(
+          { error: "Invalid color for traditional dress" },
+          { status: 400 }
+        );
+      }
     }
 
     // Generate slug from name
@@ -63,7 +99,7 @@ export async function PUT(
       }
 
       // Update product
-      const product = await prisma.product.update({
+      const updatedProduct = await prisma.product.update({
         where: { id: parseInt(params.id) },
         data: {
           name,
@@ -71,6 +107,7 @@ export async function PUT(
           price,
           categoryId,
           color,
+          style,
           status,
           stockQuantity,
           slug,
@@ -78,7 +115,7 @@ export async function PUT(
         },
       });
 
-      return NextResponse.json(product);
+      return NextResponse.json(updatedProduct);
     } catch (error) {
       console.error("Error updating product:", error);
       return NextResponse.json(

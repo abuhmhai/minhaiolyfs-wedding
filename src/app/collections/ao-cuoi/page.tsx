@@ -29,9 +29,9 @@ const AoCuoiCollection = () => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [priceRange, setPriceRange] = useState<[number, number]>([500000, 80000000]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [originalProducts, setOriginalProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<string>('featured');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     fetchProducts();
@@ -42,9 +42,7 @@ const AoCuoiCollection = () => {
       const response = await fetch('/api/products?category=ao-cuoi');
       if (response.ok) {
         const data = await response.json();
-        const productsData = data.products || [];
-        setProducts(productsData);
-        setOriginalProducts(productsData);
+        setProducts(data.products || []);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -93,11 +91,17 @@ const AoCuoiCollection = () => {
     });
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value.toLowerCase());
+  };
+
+  const filteredProducts = filterProducts().filter(product => 
+    searchTerm === '' || product.name.toLowerCase().includes(searchTerm)
+  );
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
-  const filteredProducts = filterProducts();
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -307,16 +311,8 @@ const AoCuoiCollection = () => {
                   type="text"
                   placeholder="Tìm kiếm áo cưới..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  onChange={(e) => {
-                    const searchTerm = e.target.value.toLowerCase();
-                    if (searchTerm === '') {
-                      setProducts(originalProducts);
-                    } else {
-                      setProducts(originalProducts.filter(product => 
-                        product.name.toLowerCase().includes(searchTerm)
-                      ));
-                    }
-                  }}
+                  value={searchTerm}
+                  onChange={handleSearch}
                 />
                 <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               </div>

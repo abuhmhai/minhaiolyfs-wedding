@@ -11,7 +11,12 @@ export default async function ProductDetail({ slug }: ProductDetailProps) {
     where: { slug },
     include: {
       images: true,
-      category: true,
+      category: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
     },
   });
 
@@ -19,5 +24,15 @@ export default async function ProductDetail({ slug }: ProductDetailProps) {
     notFound();
   }
 
-  return <ProductDetailClient product={product} />;
+  // Transform the product to match the expected type
+  const transformedProduct = {
+    ...product,
+    images: product.images.map(img => ({ url: img.url })),
+    category: {
+      name: product.category.name,
+      slug: product.category.slug,
+    },
+  };
+
+  return <ProductDetailClient product={transformedProduct} />;
 }
