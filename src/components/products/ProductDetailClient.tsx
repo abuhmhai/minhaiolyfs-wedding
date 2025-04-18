@@ -36,8 +36,8 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   };
 
   const handleAddToCart = async () => {
-    if (!rentalStartDate || !rentalEndDate) {
-      toast.error('Vui lòng chọn thời gian thuê');
+    if (!rentalStartDate) {
+      toast.error('Vui lòng chọn ngày thuê');
       return;
     }
 
@@ -67,7 +67,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         image: product.images[0]?.url || '/placeholder.jpg',
         quantity: quantity,
         rentalStartDate: rentalStartDate,
-        rentalEndDate: rentalEndDate,
+        rentalEndDate: rentalStartDate,
         color: selectedColor,
         type: 'rental',
         style: selectedStyle,
@@ -345,7 +345,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <Button
                 className="flex-1 bg-amber-800 hover:bg-amber-900 text-white px-6 py-2.5 rounded-md transition-colors"
                 onClick={handleAddToCart}
-                disabled={isOutOfStock || !rentalStartDate || !rentalEndDate || !selectedColor || !selectedStyle}
+                disabled={isOutOfStock || !rentalStartDate || !selectedColor || !selectedStyle}
               >
                 THÊM VÀO GIỎ HÀNG
               </Button>
