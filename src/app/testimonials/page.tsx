@@ -1,5 +1,6 @@
 import { Metadata } from "next"
 import Image from "next/image"
+import { Star } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Cảm Nhận | Cho Thuê Đồ Cưới",
@@ -12,6 +13,7 @@ const testimonials = [
     name: "Sarah & Michael",
     date: "Tháng 3, 2024",
     image: "/testimonials/couple1.png",
+    rating: 5,
     content: "Chất lượng đồ thuê vượt xa mong đợi của chúng tôi. Mọi thứ đều trong tình trạng hoàn hảo và đội ngũ nhân viên vô cùng nhiệt tình trong suốt quá trình. Ngày cưới của chúng tôi thật sự kỳ diệu nhờ những món đồ xinh đẹp này.",
   },
   {
@@ -19,6 +21,7 @@ const testimonials = [
     name: "Jessica & David",
     date: "Tháng 2, 2024",
     image: "/testimonials/couple2.png",
+    rating: 5,
     content: "Chúng tôi hoàn toàn bị ấn tượng bởi sự đa dạng và quy trình thuê đồ dễ dàng. Đội ngũ nhân viên đã vượt xa mong đợi để đảm bảo chúng tôi có mọi thứ cần thiết. Những món đồ cổ điển đã tạo nên điểm nhấn đặc biệt cho trang trí đám cưới của chúng tôi.",
   },
   {
@@ -26,6 +29,7 @@ const testimonials = [
     name: "Emily & James",
     date: "Tháng 1, 2024",
     image: "/testimonials/couple3.png",
+    rating: 5,
     content: "Thuê đồ trang trí đám cưới là quyết định tốt nhất chúng tôi đã thực hiện. Chất lượng tuyệt vời và giá cả rất hợp lý. Đội ngũ nhân viên chuyên nghiệp và giúp toàn bộ quá trình trở nên dễ dàng.",
   },
   {
@@ -33,6 +37,7 @@ const testimonials = [
     name: "Amanda & Craig",
     date: "Tháng 4, 2024",
     image: "/testimonials/couple4.jpg",
+    rating: 5,
     content: "Chúng tôi đã tìm thấy mọi thứ chúng tôi cần cho ngày cưới của mình. Dịch vụ thuê đồ thật sự tuyệt vời và giúp chúng tôi tiết kiệm được rất nhiều chi phí. Cảm ơn đội ngũ đã giúp ngày trọng đại của chúng tôi thêm phần hoàn hảo.",
   },
   {
@@ -40,6 +45,7 @@ const testimonials = [
     name: "Pháp & Hải",
     date: "Tháng 4, 2025",
     image: "/testimonials/couple5.png",
+    rating: 5,
     content: "Chúng tôi rất hài lòng với dịch vụ thuê đồ cưới. Mọi thứ đều được chuẩn bị chu đáo và đúng hẹn. Đội ngũ tư vấn nhiệt tình giúp chúng tôi lựa chọn được những món đồ phù hợp với phong cách đám cưới. Ngày cưới của chúng tôi thật sự đáng nhớ!",
   },
   {
@@ -47,6 +53,7 @@ const testimonials = [
     name: "Ninh & Dương",
     date: "Tháng 1, 2025",
     image: "/testimonials/couple6.png",
+    rating: 5,
     content: "Dịch vụ thuê đồ cưới chất lượng cao với giá cả phải chăng. Chúng tôi đặc biệt ấn tượng với sự đa dạng của các món đồ và sự chuyên nghiệp của đội ngũ nhân viên. Cảm ơn các bạn đã giúp chúng tôi có một đám cưới hoàn hảo!",
   },
 ]
@@ -81,6 +88,14 @@ export default function TestimonialsPage() {
                 <p className="text-gray-500">{testimonial.date}</p>
               </div>
             </div>
+            <div className="flex mb-4">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  className="w-5 h-5 text-amber-500 fill-amber-500"
+                />
+              ))}
+            </div>
             <p className="text-gray-700">{testimonial.content}</p>
           </div>
         ))}
@@ -91,7 +106,6 @@ export default function TestimonialsPage() {
         <p className="text-gray-600 mb-6">
           Chúng tôi rất muốn lắng nghe trải nghiệm của bạn về dịch vụ thuê đồ của chúng tôi.
         </p>
-        
       </div>
     </div>
   )
