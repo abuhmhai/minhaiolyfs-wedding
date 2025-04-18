@@ -78,6 +78,21 @@ export async function POST(request: Request) {
       });
     }
 
+    // Get the product to check if it's a wedding dress
+    const product = await prisma.product.findUnique({
+      where: { id: parseInt(productId) },
+      include: { category: true }
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    const isWeddingDress = product.category.slug === 'ao-cuoi';
+
     // Add or update cart item
     const cartItem = await prisma.cartItem.upsert({
       where: {
@@ -91,8 +106,8 @@ export async function POST(request: Request) {
         color,
         type,
         style,
-        rentalStartDate: new Date(rentalStartDate),
-        rentalEndDate: new Date(rentalEndDate)
+        rentalStartDate: isWeddingDress ? new Date(rentalStartDate) : null,
+        rentalEndDate: isWeddingDress ? new Date(rentalEndDate) : null
       },
       create: {
         cartId: cart.id,
@@ -101,8 +116,8 @@ export async function POST(request: Request) {
         color,
         type,
         style,
-        rentalStartDate: new Date(rentalStartDate),
-        rentalEndDate: new Date(rentalEndDate)
+        rentalStartDate: isWeddingDress ? new Date(rentalStartDate) : null,
+        rentalEndDate: isWeddingDress ? new Date(rentalEndDate) : null
       },
       include: {
         product: {

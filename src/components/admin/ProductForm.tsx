@@ -21,9 +21,9 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
   const [formData, setFormData] = useState({
     name: product?.name || "",
     description: product?.description || "",
-    price: product?.price || 0,
+    price: product?.price?.toString() || "0",
     categoryId: product?.categoryId?.toString() || "",
-    stockQuantity: product?.stockQuantity?.toString() || "",
+    stockQuantity: product?.stockQuantity?.toString() || "0",
     status: product?.status || ProductStatus.IN_STOCK,
     images: product?.images.map(img => img.url) || [],
     style: product?.style || "",
@@ -106,6 +106,16 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     }
   };
 
+  const handleNumericInput = (field: string, value: string) => {
+    // Only allow numbers and empty string
+    if (value === "" || /^\d+$/.test(value)) {
+      setFormData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -114,9 +124,9 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       const formDataObj = new FormData();
       formDataObj.append('name', formData.name);
       formDataObj.append('description', formData.description || '');
-      formDataObj.append('price', formData.price.toString());
+      formDataObj.append('price', formData.price || '0');
       formDataObj.append('categoryId', formData.categoryId);
-      formDataObj.append('stockQuantity', formData.stockQuantity);
+      formDataObj.append('stockQuantity', formData.stockQuantity || '0');
       formDataObj.append('status', formData.status);
       formDataObj.append('style', formData.style);
       formDataObj.append('color', formData.color);
@@ -247,55 +257,30 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                 <div className="relative">
                   <span className="absolute left-4 top-2 text-gray-500">đ</span>
                   <input
-                    type="number"
+                    type="text"
                     id="price"
                     value={formData.price}
-                    onChange={(e) => setFormData(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                    onChange={(e) => handleNumericInput('price', e.target.value)}
                     className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    placeholder="Nhập giá sản phẩm"
                     required
-                    min="0"
-                    step="0.01"
-                    placeholder="0"
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="stockQuantity" className="block text-sm font-medium text-gray-700 mb-1">
-                  Số Lượng Trong Kho
+                  Số Lượng
                 </label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="number"
-                    id="stockQuantity"
-                    value={formData.stockQuantity}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData(prev => ({ ...prev, stockQuantity: value }));
-                      updateStatusBasedOnQuantity(value);
-                    }}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    required
-                    min="0"
-                    placeholder="Nhập số lượng"
-                  />
-                </div>
-                {formData.status === ProductStatus.LOW_STOCK && (
-                  <p className="mt-2 text-sm text-yellow-600 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 17a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0v-3a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    Sắp hết hàng. Vui lòng nhập thêm hàng sớm.
-                  </p>
-                )}
-                {formData.status === ProductStatus.OUT_OF_STOCK && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                    Hết hàng. Cập nhật số lượng để bán lại.
-                  </p>
-                )}
+                <input
+                  type="text"
+                  id="stockQuantity"
+                  value={formData.stockQuantity}
+                  onChange={(e) => handleNumericInput('stockQuantity', e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Nhập số lượng"
+                  required
+                />
               </div>
 
               <div>
