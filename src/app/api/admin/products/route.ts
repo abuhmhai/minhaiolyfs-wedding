@@ -65,7 +65,7 @@ export async function POST(request: Request) {
     const color = formData.get("color") as string;
     const style = formData.get("style") as string;
     const stockQuantity = parseInt(formData.get("stockQuantity") as string);
-    const images = formData.getAll("images") as File[];
+    const images = formData.getAll("images") as string[];
     const existingImages = formData.getAll("existingImages") as string[];
 
     if (!name || !price || !categoryId) {
@@ -123,13 +123,9 @@ export async function POST(request: Request) {
       let imageData = undefined;
       if (images.length > 0) {
         imageData = {
-          create: await Promise.all(
-            images.map(async (image) => {
-              return {
-                url: image.name,
-              };
-            })
-          ),
+          create: images.map((url) => ({
+            url,
+          })),
         };
       } else if (existingImages.length > 0) {
         imageData = {

@@ -188,6 +188,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         ...prev,
         images: [...prev.images, ...data.urls],
       }));
+      setImageUrls(prev => [...prev, ...data.urls]);
     } catch (error) {
       console.error('Error uploading images:', error);
       toast.error('Failed to upload images');

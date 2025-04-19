@@ -20,6 +20,7 @@ interface Product {
   };
   color: string;
   createdAt: string; // ISO date string
+  style: string;
 }
 
 const AoCuoiCollection = () => {
@@ -39,9 +40,11 @@ const AoCuoiCollection = () => {
 
   const fetchProducts = async () => {
     try {
+      console.log('Fetching products...');
       const response = await fetch('/api/products?category=ao-cuoi');
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched products:', data);
         setProducts(data.products || []);
       }
     } catch (error) {
@@ -64,11 +67,33 @@ const AoCuoiCollection = () => {
   };
 
   const filterProducts = () => {
+    console.log('Starting filtering with:', {
+      selectedStyle,
+      selectedColor,
+      priceRange,
+      totalProducts: products.length
+    });
+
     let filtered = products.filter(product => {
-      if (selectedStyle && product.category.slug !== selectedStyle) return false;
+      // Handle both string and enum style values
+      if (selectedStyle) {
+        const productStyle = product.style?.toUpperCase();
+        console.log('Checking style:', {
+          productName: product.name,
+          productStyle,
+          selectedStyle,
+          matches: productStyle === selectedStyle
+        });
+        if (!productStyle || productStyle !== selectedStyle) return false;
+      }
       if (selectedColor && product.color !== selectedColor) return false;
       if (product.price < priceRange[0] || product.price > priceRange[1]) return false;
       return true;
+    });
+
+    console.log('After filtering:', {
+      filteredCount: filtered.length,
+      firstProduct: filtered[0]
     });
 
     // Apply sorting with null checks
@@ -177,8 +202,8 @@ const AoCuoiCollection = () => {
                       type="checkbox"
                       id="style-ball-gown"
                       className="mr-2"
-                      checked={selectedStyle === 'ball-gown'}
-                      onChange={() => setSelectedStyle(selectedStyle === 'ball-gown' ? null : 'ball-gown')}
+                      checked={selectedStyle === 'DANG_XOE_BALLGOWN'}
+                      onChange={() => setSelectedStyle(selectedStyle === 'DANG_XOE_BALLGOWN' ? null : 'DANG_XOE_BALLGOWN')}
                     />
                     <label htmlFor="style-ball-gown">Dáng xòe/Ballgown</label>
                   </div>
@@ -187,8 +212,8 @@ const AoCuoiCollection = () => {
                       type="checkbox"
                       id="style-a-line"
                       className="mr-2"
-                      checked={selectedStyle === 'a-line'}
-                      onChange={() => setSelectedStyle(selectedStyle === 'a-line' ? null : 'a-line')}
+                      checked={selectedStyle === 'DANG_CHU_A'}
+                      onChange={() => setSelectedStyle(selectedStyle === 'DANG_CHU_A' ? null : 'DANG_CHU_A')}
                     />
                     <label htmlFor="style-a-line">Dáng chữ A</label>
                   </div>
@@ -197,8 +222,8 @@ const AoCuoiCollection = () => {
                       type="checkbox"
                       id="style-mermaid"
                       className="mr-2"
-                      checked={selectedStyle === 'mermaid'}
-                      onChange={() => setSelectedStyle(selectedStyle === 'mermaid' ? null : 'mermaid')}
+                      checked={selectedStyle === 'DANG_DUOI_CA_MERMAID'}
+                      onChange={() => setSelectedStyle(selectedStyle === 'DANG_DUOI_CA_MERMAID' ? null : 'DANG_DUOI_CA_MERMAID')}
                     />
                     <label htmlFor="style-mermaid">Dáng đuôi cá/Mermaid</label>
                   </div>

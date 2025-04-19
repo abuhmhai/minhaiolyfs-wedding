@@ -38,7 +38,7 @@ model Product {
   price           Float
   slug            String                  @unique
   color           String?
-  style           String?
+  style           WeddingDressStyle?
   stockQuantity   Int                     @default(0)
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
