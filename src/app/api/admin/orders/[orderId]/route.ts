@@ -81,6 +81,13 @@ export async function PATCH(
     const order = await prisma.order.findUnique({
       where: {
         id: parseInt(params.orderId)
+      },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        }
       }
     });
 
@@ -101,13 +108,36 @@ export async function PATCH(
       return new NextResponse('Invalid status transition', { status: 400 });
     }
 
-    const updatedOrder = await prisma.order.update({
-      where: {
-        id: parseInt(params.orderId)
-      },
-      data: {
-        status
+    // Start a transaction to update order status and product quantities
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // Update order status
+      const updatedOrder = await tx.order.update({
+        where: {
+          id: parseInt(params.orderId)
+        },
+        data: {
+          status
+        }
+      });
+
+      // If order is being marked as DELIVERED, update product quantities
+      if (status === OrderStatus.DELIVERED) {
+        // Update stock quantity for each product in the order
+        for (const item of order.items) {
+          await tx.product.update({
+            where: {
+              id: item.productId
+            },
+            data: {
+              stockQuantity: {
+                decrement: item.quantity
+              }
+            }
+          });
+        }
       }
+
+      return updatedOrder;
     });
 
     return NextResponse.json(updatedOrder);
