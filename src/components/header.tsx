@@ -65,13 +65,27 @@ const Header = () => {
                     Thông tin tài khoản
                   </Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/account/orders" className="flex items-center w-full">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Đơn hàng của tôi
+                  </Link>
+                </DropdownMenuItem>
                 {session.user.role === 'admin' && (
-                  <DropdownMenuItem>
-                    <Link href="/admin/products" className="flex items-center w-full">
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Quản lý sản phẩm
-                    </Link>
-                  </DropdownMenuItem>
+                  <>
+                    <DropdownMenuItem>
+                      <Link href="/admin/products" className="flex items-center w-full">
+                        <ShoppingBag className="h-4 w-4 mr-2" />
+                        Quản lý sản phẩm
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/admin/order" className="flex items-center w-full">
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Quản lý đơn hàng
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
                 )}
                 <DropdownMenuItem>
                   <Link href="/cart" className="flex items-center w-full">

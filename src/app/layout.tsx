@@ -5,6 +5,7 @@ import Header from '@/components/header';
 import Footer from '@/components/footer';
 import { Toaster } from 'sonner';
 import { NextAuthProvider } from '@/providers/NextAuthProvider';
+import ClientBody from '@/components/client/ClientBody';
 
 export const metadata: Metadata = {
   title: 'Wedding Dress Rental',
@@ -27,12 +28,14 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
         <NextAuthProvider>
-          <Header />
-          <main className="min-h-screen bg-gray-50">
-            {children}
-          </main>
-          <Footer />
-          <Toaster position="top-right" />
+          <ClientBody>
+            <Header />
+            <main className="min-h-screen bg-gray-50">
+              {children}
+            </main>
+            <Footer />
+            <Toaster position="top-right" />
+          </ClientBody>
         </NextAuthProvider>
       </body>
     </html>
