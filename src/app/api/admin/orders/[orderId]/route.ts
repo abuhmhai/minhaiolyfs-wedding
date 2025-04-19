@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { Role, OrderStatus } from '@prisma/client';
+import { Role, OrderStatus, ProductStatus } from '@prisma/client';
 
 export async function GET(
   request: Request,
@@ -120,11 +120,11 @@ export async function PATCH(
         }
       });
 
-      // If order is being marked as DELIVERED, update product quantities
+      // If order is being marked as DELIVERED, update product quantities and statuses
       if (status === OrderStatus.DELIVERED) {
-        // Update stock quantity for each product in the order
+        // Update stock quantity and status for each product in the order
         for (const item of order.items) {
-          await tx.product.update({
+          const updatedProduct = await tx.product.update({
             where: {
               id: item.productId
             },
@@ -134,6 +134,26 @@ export async function PATCH(
               }
             }
           });
+
+          // Update product status based on new stock quantity
+          let newStatus: ProductStatus = ProductStatus.IN_STOCK;
+          if (updatedProduct.stockQuantity <= 0) {
+            newStatus = ProductStatus.OUT_OF_STOCK;
+          } else if (updatedProduct.stockQuantity <= 5) {
+            newStatus = ProductStatus.LOW_STOCK;
+          }
+
+          // Only update status if it has changed
+          if (updatedProduct.status !== newStatus) {
+            await tx.product.update({
+              where: {
+                id: item.productId
+              },
+              data: {
+                status: newStatus
+              }
+            });
+          }
         }
       }
 
