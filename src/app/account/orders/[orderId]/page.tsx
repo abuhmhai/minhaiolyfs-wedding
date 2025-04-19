@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 import Image from 'next/image';
+import { use } from 'react';
 import {
   Select,
   SelectContent,
@@ -18,12 +19,13 @@ interface PageParams {
   orderId: string;
 }
 
-export default function OrderDetailsPage({ params }: { params: PageParams }) {
+export default function OrderDetailsPage({ params }: { params: Promise<PageParams> }) {
   const router = useRouter();
   const { data: session } = useSession();
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<any[]>([]);
+  const { orderId } = use(params);
 
   useEffect(() => {
     if (!session?.user) {
@@ -47,11 +49,11 @@ export default function OrderDetailsPage({ params }: { params: PageParams }) {
 
     const fetchOrder = async () => {
       try {
-        if (!params.orderId) {
+        if (!orderId) {
           throw new Error('Order ID is required');
         }
 
-        const response = await fetch(`/api/orders/${params.orderId}`);
+        const response = await fetch(`/api/orders/${orderId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch order');
         }
@@ -67,7 +69,7 @@ export default function OrderDetailsPage({ params }: { params: PageParams }) {
 
     fetchOrders();
     fetchOrder();
-  }, [session, router, params.orderId]);
+  }, [session, router, orderId]);
 
   const handleOrderChange = (value: string) => {
     router.push(`/account/orders/${value}`);
@@ -104,7 +106,7 @@ export default function OrderDetailsPage({ params }: { params: PageParams }) {
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Chi tiết đơn hàng #{order.id}</h1>
-          <Select value={params.orderId} onValueChange={handleOrderChange}>
+          <Select value={orderId} onValueChange={handleOrderChange}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Chọn đơn hàng" />
             </SelectTrigger>
@@ -125,37 +127,50 @@ export default function OrderDetailsPage({ params }: { params: PageParams }) {
               <CardTitle>Sản phẩm đã đặt</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {order.items?.map((item: any) => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="relative w-24 h-24">
-                      <Image
-                        src={item.product?.images?.[0] || '/placeholder.jpg'}
-                        alt={item.product?.name || 'Product image'}
-                        fill
-                        className="object-cover rounded"
-                      />
+                  <div key={item.id} className="flex gap-6 p-4 bg-gray-50 rounded-lg">
+                    <div className="relative w-32 h-32 flex-shrink-0">
+                      {item.product?.images?.[0]?.url ? (
+                        <Image
+                          src={item.product.images[0].url}
+                          alt={item.product?.name || 'Product image'}
+                          fill
+                          className="object-cover rounded-lg"
+                          sizes="(max-width: 128px) 100vw, 128px"
+                          priority
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
+                          <span className="text-gray-400">No image</span>
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-medium">{item.product?.name}</h3>
-                      <p className="text-sm text-gray-500">
-                        Size: {item.size} - Số lượng: {item.quantity}
-                      </p>
-                      {item.rentalDuration && (
-                        <p className="text-sm text-gray-500">
-                          Thời gian thuê: {item.rentalDuration.name}
+                      <h3 className="font-medium text-lg mb-2">{item.product?.name}</h3>
+                      <div className="space-y-1 text-gray-600">
+                        <p className="text-sm">
+                          <span className="font-medium">Size:</span> {item.size}
                         </p>
-                      )}
-                      <p className="font-medium mt-1">
-                        {(item.price * item.quantity).toLocaleString('vi-VN')}đ
-                      </p>
+                        <p className="text-sm">
+                          <span className="font-medium">Số lượng:</span> {item.quantity}
+                        </p>
+                        {item.rentalDuration && (
+                          <p className="text-sm">
+                            <span className="font-medium">Thời gian thuê:</span> {item.rentalDuration.name}
+                          </p>
+                        )}
+                        <p className="text-lg font-medium text-primary mt-2">
+                          {(item.price * item.quantity).toLocaleString('vi-VN')}đ
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
                 <div className="border-t pt-4">
-                  <div className="flex justify-between font-bold">
+                  <div className="flex justify-between font-bold text-lg">
                     <span>Tổng cộng:</span>
-                    <span>{order.total.toLocaleString('vi-VN')}đ</span>
+                    <span className="text-primary">{order.total.toLocaleString('vi-VN')}đ</span>
                   </div>
                 </div>
               </div>
@@ -165,37 +180,61 @@ export default function OrderDetailsPage({ params }: { params: PageParams }) {
           {/* Shipping Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin giao hàng</CardTitle>
+              <CardTitle>Thông tin đơn hàng</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-medium">Trạng thái đơn hàng</h3>
-                  <p className="text-sm text-gray-500 capitalize">{order.status.toLowerCase()}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Người nhận</h3>
-                  <p className="text-sm text-gray-500">{order.fullName}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Số điện thoại</h3>
-                  <p className="text-sm text-gray-500">{order.phone}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium">Địa chỉ giao hàng</h3>
-                  <p className="text-sm text-gray-500">{order.address}</p>
-                </div>
-                {order.note && (
-                  <div>
-                    <h3 className="font-medium">Ghi chú</h3>
-                    <p className="text-sm text-gray-500">{order.note}</p>
+              <div className="space-y-6">
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-lg mb-3">Trạng thái đơn hàng</h3>
+                  <div className={`inline-flex items-center px-3 py-1 rounded-full ${
+                    order.status === 'DELIVERED' 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {order.status === 'DELIVERED' ? 'Đã giao hàng' : order.status}
                   </div>
-                )}
-                <div>
-                  <h3 className="font-medium">Ngày đặt hàng</h3>
-                  <p className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString('vi-VN')}
-                  </p>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-lg mb-3">Thông tin giao hàng</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Người nhận</p>
+                      <p className="font-medium">{order.fullName || 'Chưa có thông tin'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Số điện thoại</p>
+                      <p className="font-medium">{order.phone || 'Chưa có thông tin'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
+                      <p className="font-medium">{order.address || 'Chưa có thông tin'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gray-50 rounded-lg">
+                  <h3 className="font-medium text-lg mb-3">Thông tin đặt hàng</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Ngày đặt hàng</p>
+                      <p className="font-medium">
+                        {new Date(order.createdAt).toLocaleDateString('vi-VN', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    {order.note && (
+                      <div>
+                        <p className="text-sm text-gray-500">Ghi chú</p>
+                        <p className="font-medium">{order.note}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>

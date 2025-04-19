@@ -15,35 +15,49 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { items, total, fullName, phone, address, note } = body;
 
-    // Create order
-    const order = await prisma.order.create({
-      data: {
-        userId: parseInt(session.user.id),
-        status: OrderStatus.PENDING,
-        total,
-        items: {
-          create: items.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            price: item.price,
-            size: item.size,
-            rentalDurationId: item.rentalDurationId
-          }))
+    // Start a transaction to create order and clear cart
+    const order = await prisma.$transaction(async (tx) => {
+      // Create order
+      const order = await tx.order.create({
+        data: {
+          userId: parseInt(session.user.id),
+          status: OrderStatus.PENDING,
+          total,
+          items: {
+            create: items.map((item: any) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price,
+              size: item.size,
+              rentalDurationId: item.rentalDurationId
+            }))
+          }
+        },
+        include: {
+          items: true
         }
-      },
-      include: {
-        items: true
-      }
-    });
+      });
 
-    // Update user information
-    await prisma.user.update({
-      where: { id: parseInt(session.user.id) },
-      data: {
-        fullName,
-        phone,
-        address
-      }
+      // Update user information
+      await tx.user.update({
+        where: { id: parseInt(session.user.id) },
+        data: {
+          fullName,
+          phone,
+          address
+        }
+      });
+
+      // Clear the user's cart
+      await tx.cartItem.deleteMany({
+        where: {
+          cart: {
+            userId: parseInt(session.user.id)
+          }
+        }
+      });
+
+      return order;
     });
 
     return NextResponse.json(order);

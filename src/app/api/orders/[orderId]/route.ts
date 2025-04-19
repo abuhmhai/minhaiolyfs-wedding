@@ -26,8 +26,19 @@ export async function GET(
       include: {
         items: {
           include: {
-            product: true,
+            product: {
+              include: {
+                images: true
+              }
+            },
             rentalDuration: true
+          }
+        },
+        user: {
+          select: {
+            fullName: true,
+            phone: true,
+            address: true
           }
         }
       }
@@ -41,7 +52,15 @@ export async function GET(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    return NextResponse.json(order);
+    // Transform the order to include user information
+    const transformedOrder = {
+      ...order,
+      fullName: order.user.fullName,
+      phone: order.user.phone || '',
+      address: order.user.address || ''
+    };
+
+    return NextResponse.json(transformedOrder);
   } catch (error) {
     console.error('Error fetching order:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

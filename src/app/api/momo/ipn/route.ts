@@ -1,22 +1,24 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
 import { OrderStatus } from '@prisma/client';
 
 interface MomoIPNPayload {
-  orderType: string;
-  amount: number;
   partnerCode: string;
   orderId: string;
-  extraData: string;
-  signature: string;
-  transId: number;
-  responseTime: number;
+  requestId: string;
+  amount: number;
+  orderInfo: string;
+  orderType: string;
+  transId: string;
   resultCode: number;
   message: string;
   payType: string;
-  requestId: string;
-  orderInfo: string;
+  responseTime: string;
+  extraData: string;
+  signature: string;
 }
 
 export async function POST(request: Request) {
@@ -40,7 +42,10 @@ export async function POST(request: Request) {
     // Find the order
     const order = await prisma.order.findUnique({
       where: { id: parseInt(payload.orderId) },
-      include: { items: true }
+      include: { 
+        items: true,
+        user: true
+      }
     });
 
     if (!order) {
@@ -55,26 +60,40 @@ export async function POST(request: Request) {
     }
 
     // Update order status based on resultCode
-    let status: OrderStatus = OrderStatus.PROCESSING;
+    let status: OrderStatus = OrderStatus.PENDING;
     if (payload.resultCode === 0 || payload.resultCode === 9000) {
-      status = OrderStatus.SHIPPED; // Using SHIPPED as successful state
+      status = OrderStatus.PROCESSING; // Only update to PROCESSING after successful payment
     }
 
-    // Update the order
-    await prisma.order.update({
-      where: { id: parseInt(payload.orderId) },
-      data: {
-        status,
-        updatedAt: new Date()
+    // Start a transaction to update order status and clear cart
+    await prisma.$transaction(async (tx) => {
+      // Update the order
+      await tx.order.update({
+        where: { id: parseInt(payload.orderId) },
+        data: {
+          status,
+          updatedAt: new Date()
+        }
+      });
+
+      // Clear the user's cart
+      if (order.user) {
+        await tx.cartItem.deleteMany({
+          where: {
+            cart: {
+              userId: order.user.id
+            }
+          }
+        });
       }
     });
 
-    console.log('Order updated:', payload.orderId, status);
+    console.log('Order updated and cart cleared:', payload.orderId, status);
 
     // Return 204 No Content as required by Momo
     return new NextResponse(null, { status: 204 });
   } catch (error) {
     console.error('Error processing Momo IPN:', error);
-    return new NextResponse(null, { status: 500 });
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 } 

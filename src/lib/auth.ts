@@ -49,8 +49,10 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id.toString(),
           email: user.email,
-          name: user.fullName,
-          role: user.role as Role
+          fullName: user.fullName,
+          role: user.role as Role,
+          phone: user.phone || undefined,
+          address: user.address || undefined
         };
       }
     })
@@ -60,6 +62,9 @@ export const authOptions: NextAuthOptions = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as Role;
+        session.user.fullName = token.fullName as string;
+        session.user.phone = token.phone || undefined;
+        session.user.address = token.address || undefined;
       }
       return session;
     },
@@ -67,6 +72,9 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.fullName = user.fullName;
+        token.phone = user.phone || undefined;
+        token.address = user.address || undefined;
       }
       return token;
     }

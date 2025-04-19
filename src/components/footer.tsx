@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="flex flex-col items-center justify-center mb-8">
           <h3 className="text-lg font-medium text-gray-700 mb-4">GET CONNECTED</h3>
           <div className="flex items-center space-x-4">
-            <Link href="https://www.facebook.com/NhungTrangWeddingHouse/" className="text-gray-600 hover:text-gray-900">
+            <Link href="https://www.facebook.com/nhung.trang.5855594" className="text-gray-600 hover:text-gray-900">
               <Facebook className="h-5 w-5" />
             </Link>
             <Link href="mailto:nhungtrangweddingvn@gmail.com" className="text-gray-600 hover:text-gray-900">
@@ -113,7 +113,7 @@ const Footer = () => {
             <span>|</span>
             <Link href="/pages/nhung-cau-hoi-thuong-gap" className="hover:underline">FAQ</Link>
             <span>|</span>
-            <Link href="https://www.facebook.com/NhungTrangWeddingHouse/" className="hover:underline">Liên hệ qua Fanpage</Link>
+            <Link href="https://www.facebook.com/nhung.trang.5855594" className="hover:underline">Liên hệ qua Fanpage</Link>
           </p>
         </div>
       </div>
