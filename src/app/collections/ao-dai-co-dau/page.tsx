@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, Filter, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 
 interface AoDaiProduct {
   id: number;

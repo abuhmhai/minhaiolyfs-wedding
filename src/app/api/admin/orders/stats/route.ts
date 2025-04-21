@@ -1,59 +1,45 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { Role, OrderStatus } from '@prisma/client';
+import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== Role.admin) {
+    if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Get total count of orders
-    const total = await prisma.order.count();
-
-    // Get counts by status
-    const pending = await prisma.order.count({
-      where: { status: OrderStatus.PENDING }
-    });
-
-    const processing = await prisma.order.count({
-      where: { status: OrderStatus.PROCESSING }
-    });
-
-    const shipped = await prisma.order.count({
-      where: { status: OrderStatus.SHIPPED }
-    });
-
-    const delivered = await prisma.order.count({
-      where: { status: OrderStatus.DELIVERED }
-    });
-
-    const cancelled = await prisma.order.count({
-      where: { status: OrderStatus.CANCELLED }
-    });
-
-    // Get recent orders
-    const recentOrders = await prisma.order.findMany({
-      take: 5,
-      orderBy: {
-        createdAt: 'desc'
-      },
-      include: {
-        items: {
-          include: {
-            product: {
-              include: {
-                images: true
-              }
+    const [
+      total,
+      pending,
+      processing,
+      shipped,
+      delivered,
+      cancelled,
+      recentOrders
+    ] = await Promise.all([
+      prisma.order.count(),
+      prisma.order.count({ where: { status: 'PENDING' } }),
+      prisma.order.count({ where: { status: 'PROCESSING' } }),
+      prisma.order.count({ where: { status: 'SHIPPED' } }),
+      prisma.order.count({ where: { status: 'DELIVERED' } }),
+      prisma.order.count({ where: { status: 'CANCELLED' } }),
+      prisma.order.findMany({
+        take: 5,
+        include: {
+          user: {
+            select: {
+              fullName: true,
+              email: true
             }
           }
+        },
+        orderBy: {
+          createdAt: 'desc'
         }
-      }
-    });
+      })
+    ]);
 
     return NextResponse.json({
       total,
@@ -65,7 +51,7 @@ export async function GET() {
       recentOrders
     });
   } catch (error) {
-    console.error('Error fetching order statistics:', error);
+    console.error('Error fetching order stats:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 } 

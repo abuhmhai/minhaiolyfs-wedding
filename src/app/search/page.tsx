@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { ProductCard } from '@/components/product-card';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 
 async function getSearchResults(query: string, category: string) {
   const products = await prisma.product.findMany({

@@ -1,12 +1,38 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "./prisma";
+import { PrismaClient } from "@prisma/client";
 import { compare } from "bcrypt";
-import { Role } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
+type Role = 'admin' | 'user';
+
+declare module "next-auth" {
+  interface User {
+    id: string;
+    email: string;
+    fullName: string;
+    role: Role;
+    phone?: string;
+    address?: string;
+  }
+
+  interface Session {
+    user: User;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: Role;
+    fullName: string;
+    phone?: string;
+    address?: string;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
@@ -50,7 +76,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id.toString(),
           email: user.email,
           fullName: user.fullName,
-          role: user.role as Role,
+          role: user.role.toLowerCase() as Role,
           phone: user.phone || undefined,
           address: user.address || undefined
         };
@@ -58,25 +84,25 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as Role;
-        session.user.fullName = token.fullName as string;
-        session.user.phone = token.phone || undefined;
-        session.user.address = token.address || undefined;
-      }
-      return session;
-    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.role = user.role;
         token.fullName = user.fullName;
-        token.phone = user.phone || undefined;
-        token.address = user.address || undefined;
+        token.phone = user.phone;
+        token.address = user.address;
       }
       return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.fullName = token.fullName;
+        session.user.phone = token.phone;
+        session.user.address = token.address;
+      }
+      return session;
     }
   },
   secret: process.env.NEXTAUTH_SECRET,

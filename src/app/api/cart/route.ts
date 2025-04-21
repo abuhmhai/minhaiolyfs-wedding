@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+
+const prisma = new PrismaClient();
 
 export async function GET(request: Request) {
   try {
@@ -12,16 +14,14 @@ export async function GET(request: Request) {
     }
 
     const cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(session.user.id) },
+      where: {
+        userId: parseInt(session.user.id)
+      },
       include: {
         items: {
           include: {
             product: {
-              select: {
-                id: true,
-                name: true,
-                price: true,
-                stockQuantity: true,
+              include: {
                 images: true
               }
             }
@@ -30,15 +30,11 @@ export async function GET(request: Request) {
       }
     });
 
-    if (!cart) {
-      return NextResponse.json({ items: [] }, { status: 200 });
-    }
-
-    return NextResponse.json(cart, { status: 200 });
+    return NextResponse.json({ items: cart?.items || [] }, { status: 200 });
   } catch (error) {
     console.error("Error fetching cart:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to fetch cart" },
       { status: 500 }
     );
   }
@@ -55,19 +51,23 @@ export async function POST(request: Request) {
       );
     }
 
-    const { 
-      productId, 
-      quantity, 
-      color, 
-      type, 
-      style, 
-      rentalStartDate, 
-      rentalEndDate 
-    } = await request.json();
+    const body = await request.json();
+    const {
+      productId,
+      quantity,
+      size,
+      color,
+      style,
+      rentalStartDate,
+      rentalEndDate,
+      rentalDurationId
+    } = body;
 
-    // Find or create cart
+    // Get or create user's cart
     let cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(session.user.id) }
+      where: {
+        userId: parseInt(session.user.id)
+      }
     });
 
     if (!cart) {
@@ -78,10 +78,10 @@ export async function POST(request: Request) {
       });
     }
 
-    // Get the product to check if it's a wedding dress
+    // Check if product exists
     const product = await prisma.product.findUnique({
-      where: { id: parseInt(productId) },
-      include: { category: true }
+      where: { id: productId },
+      include: { images: true }
     });
 
     if (!product) {
@@ -91,52 +91,66 @@ export async function POST(request: Request) {
       );
     }
 
-    const isWeddingDress = product.category.slug === 'ao-cuoi';
-
-    // Add or update cart item
-    const cartItem = await prisma.cartItem.upsert({
+    // Check if item already exists in cart
+    const existingItem = await prisma.cartItem.findFirst({
       where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId: parseInt(productId)
-        }
-      },
-      update: {
-        quantity,
-        color,
-        type,
-        style,
-        rentalStartDate: isWeddingDress ? new Date(rentalStartDate) : null,
-        rentalEndDate: isWeddingDress ? new Date(rentalEndDate) : null
-      },
-      create: {
         cartId: cart.id,
-        productId: parseInt(productId),
+        productId: productId,
+        size: size || null,
+        color: color || null,
+        style: style || null,
+        rentalStartDate: rentalStartDate || null,
+        rentalEndDate: rentalEndDate || null,
+        rentalDurationId: rentalDurationId || null
+      }
+    });
+
+    if (existingItem) {
+      // Update quantity if item exists
+      const updatedItem = await prisma.cartItem.update({
+        where: { id: existingItem.id },
+        data: {
+          quantity: existingItem.quantity + quantity
+        },
+        include: {
+          product: {
+            include: {
+              images: true
+            }
+          }
+        }
+      });
+
+      return NextResponse.json(updatedItem, { status: 200 });
+    }
+
+    // Create new cart item
+    const newItem = await prisma.cartItem.create({
+      data: {
+        cartId: cart.id,
+        productId,
         quantity,
-        color,
-        type,
-        style,
-        rentalStartDate: isWeddingDress ? new Date(rentalStartDate) : null,
-        rentalEndDate: isWeddingDress ? new Date(rentalEndDate) : null
+        size: size || null,
+        color: color || null,
+        style: style || null,
+        rentalStartDate: rentalStartDate ? new Date(rentalStartDate) : null,
+        rentalEndDate: rentalEndDate ? new Date(rentalEndDate) : null,
+        rentalDurationId: rentalDurationId || null
       },
       include: {
         product: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            images: true,
-            stockQuantity: true
+          include: {
+            images: true
           }
         }
       }
     });
 
-    return NextResponse.json(cartItem, { status: 200 });
+    return NextResponse.json(newItem, { status: 201 });
   } catch (error) {
     console.error("Error adding to cart:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to add item to cart" },
       { status: 500 }
     );
   }
@@ -148,23 +162,25 @@ export async function DELETE(request: Request) {
     
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Please login to remove items from cart" },
         { status: 401 }
       );
     }
 
     const { searchParams } = new URL(request.url);
-    const productId = searchParams.get("productId");
+    const itemId = searchParams.get('itemId');
 
-    if (!productId) {
+    if (!itemId) {
       return NextResponse.json(
-        { error: "Product ID is required" },
+        { error: "Item ID is required" },
         { status: 400 }
       );
     }
 
     const cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(session.user.id) }
+      where: {
+        userId: parseInt(session.user.id)
+      }
     });
 
     if (!cart) {
@@ -176,21 +192,16 @@ export async function DELETE(request: Request) {
 
     await prisma.cartItem.delete({
       where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId: parseInt(productId)
-        }
+        id: parseInt(itemId),
+        cartId: cart.id
       }
     });
 
-    return NextResponse.json(
-      { message: "Item removed from cart" },
-      { status: 200 }
-    );
+    return NextResponse.json({ success: true }, { status: 200 });
   } catch (error) {
-    console.error("Error removing item from cart:", error);
+    console.error("Error removing from cart:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to remove item from cart" },
       { status: 500 }
     );
   }
@@ -202,23 +213,25 @@ export async function PUT(request: Request) {
     
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Unauthorized" },
+        { error: "Please login to update cart" },
         { status: 401 }
       );
     }
 
-    const { productId, quantity } = await request.json();
+    const body = await request.json();
+    const { itemId, quantity } = body;
 
-    if (!productId || !quantity) {
+    if (!itemId || !quantity) {
       return NextResponse.json(
-        { error: "Product ID and quantity are required" },
+        { error: "Item ID and quantity are required" },
         { status: 400 }
       );
     }
 
-    // Get the cart
     const cart = await prisma.cart.findUnique({
-      where: { userId: parseInt(session.user.id) }
+      where: {
+        userId: parseInt(session.user.id)
+      }
     });
 
     if (!cart) {
@@ -228,55 +241,28 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Get the product to check stock
-    const product = await prisma.product.findUnique({
-      where: { id: parseInt(productId) }
-    });
-
-    if (!product) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
-    }
-
-    // Check if quantity exceeds stock
-    if (quantity > product.stockQuantity) {
-      return NextResponse.json(
-        { error: "Quantity exceeds available stock" },
-        { status: 400 }
-      );
-    }
-
-    // Update cart item quantity
-    const updatedCartItem = await prisma.cartItem.update({
+    const updatedItem = await prisma.cartItem.update({
       where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId: parseInt(productId)
-        }
+        id: parseInt(itemId),
+        cartId: cart.id
       },
       data: {
-        quantity: parseInt(quantity)
+        quantity
       },
       include: {
         product: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            stockQuantity: true,
+          include: {
             images: true
           }
         }
       }
     });
 
-    return NextResponse.json(updatedCartItem, { status: 200 });
+    return NextResponse.json(updatedItem, { status: 200 });
   } catch (error) {
-    console.error("Error updating cart item:", error);
+    console.error("Error updating cart:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to update cart" },
       { status: 500 }
     );
   }

@@ -1,14 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { Role } from '@prisma/client';
+import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-
-    if (!session || session.user.role !== Role.admin) {
+    if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
@@ -16,12 +14,14 @@ export async function GET() {
       include: {
         items: {
           include: {
-            product: {
-              include: {
-                images: true
-              }
-            },
-            rentalDuration: true
+            product: true
+          }
+        },
+        user: {
+          select: {
+            fullName: true,
+            email: true,
+            phone: true
           }
         }
       },
@@ -30,13 +30,7 @@ export async function GET() {
       }
     });
 
-    // Transform the orders to match the expected format
-    const transformedOrders = orders.map(order => ({
-      ...order,
-      orderItems: order.items
-    }));
-
-    return NextResponse.json(transformedOrders);
+    return NextResponse.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

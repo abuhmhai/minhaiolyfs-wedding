@@ -1,64 +1,55 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
+import { prisma } from '@/lib/db';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user) {
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const body = await request.json();
-    const { items, total, fullName, phone, address, note } = body;
+    const body = await req.json();
+    const { items, total } = body;
 
-    // Start a transaction to create order and clear cart
-    const order = await prisma.$transaction(async (tx) => {
-      // Create order
-      const order = await tx.order.create({
-        data: {
-          userId: parseInt(session.user.id),
-          status: OrderStatus.PENDING,
-          total,
-          items: {
-            create: items.map((item: any) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price,
-              size: item.size,
-              rentalDurationId: item.rentalDurationId
-            }))
-          }
-        },
-        include: {
-          items: true
+    // Create order
+    const order = await prisma.order.create({
+      data: {
+        userId: parseInt(session.user.id),
+        total,
+        status: 'PENDING',
+        items: {
+          create: items.map((item: any) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            price: item.price
+          }))
         }
-      });
-
-      // Update user information
-      await tx.user.update({
-        where: { id: parseInt(session.user.id) },
-        data: {
-          fullName,
-          phone,
-          address
-        }
-      });
-
-      // Clear the user's cart
-      await tx.cartItem.deleteMany({
-        where: {
-          cart: {
-            userId: parseInt(session.user.id)
+      },
+      include: {
+        items: {
+          include: {
+            product: true
           }
         }
-      });
-
-      return order;
+      }
     });
+
+    // Clear user's cart
+    const userCart = await prisma.cart.findUnique({
+      where: {
+        userId: parseInt(session.user.id)
+      }
+    });
+
+    if (userCart) {
+      await prisma.cartItem.deleteMany({
+        where: {
+          cartId: userCart.id
+        }
+      });
+    }
 
     return NextResponse.json(order);
   } catch (error) {
@@ -70,26 +61,19 @@ export async function POST(request: Request) {
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    console.log('Session:', session);
-
-    if (!session?.user?.email) {
-      console.log('No session or email found');
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session?.user) {
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    // Get user's orders
     const orders = await prisma.order.findMany({
       where: {
-        user: {
-          email: session.user.email
-        }
+        userId: parseInt(session.user.id)
       },
       include: {
         items: {
           include: {
             product: {
-              select: {
-                name: true,
+              include: {
                 images: true
               }
             }
@@ -101,13 +85,9 @@ export async function GET() {
       }
     });
 
-    console.log('Found orders:', orders);
     return NextResponse.json(orders);
   } catch (error) {
-    console.error('Get orders error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
-    );
+    console.error('Error fetching orders:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
   }
 } 

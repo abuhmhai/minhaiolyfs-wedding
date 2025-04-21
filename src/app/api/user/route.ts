@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/db';
 
 export async function GET() {
   try {
@@ -25,7 +25,15 @@ export async function GET() {
       return new NextResponse('User not found', { status: 404 });
     }
 
-    return NextResponse.json(user);
+    // Transform the response to match the expected format
+    const transformedUser = {
+      fullName: user.fullName,
+      phone: user.phone,
+      address: user.address,
+      email: user.email
+    };
+
+    return NextResponse.json(transformedUser);
   } catch (error) {
     console.error('Error fetching user:', error);
     return new NextResponse('Internal Server Error', { status: 500 });

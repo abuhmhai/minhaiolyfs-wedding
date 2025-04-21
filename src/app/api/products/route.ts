@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+
+const prisma = new PrismaClient();
 
 // GET /api/products - Public endpoint to list all products
 export async function GET(request: Request) {
@@ -13,60 +15,44 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '12');
     const skip = (page - 1) * limit;
 
-    let where = {};
-
-    if (categorySlug) {
-      console.log('Filtering by category:', categorySlug);
-      where = {
+    const where = {
+      ...(categorySlug && {
         category: {
           slug: categorySlug
         }
-      };
-    }
-
-    if (search) {
-      where = {
-        ...where,
+      }),
+      ...(search && {
         OR: [
-          { name: { contains: search } },
-          { description: { contains: search } }
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } }
         ]
-      };
-    }
-
-    console.log('Final where clause:', where);
+      })
+    };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          slug: true,
-          color: true,
-          style: true,
-          createdAt: true,
+        include: {
           category: {
             select: {
               name: true,
-              slug: true,
+              slug: true
             }
           },
           images: {
             select: {
-              url: true,
+              url: true
             }
           }
         },
+        orderBy: {
+          createdAt: 'desc'
+        },
         skip,
-        take: limit,
-        orderBy: { createdAt: 'desc' }
+        take: limit
       }),
       prisma.product.count({ where })
     ]);
-
-    console.log('Found products:', products.length);
 
     return NextResponse.json({
       products,
@@ -76,17 +62,16 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('Error fetching products:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Failed to fetch products' },
       { status: 500 }
     );
   }
 }
 
-// POST /api/products - Admin only endpoint to create a new product
+// POST /api/products - Admin endpoint to create a new product
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -94,37 +79,41 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await request.json();
+    const body = await request.json();
     const {
       name,
       description,
       price,
-      category: categorySlug,
+      categoryId,
       color,
-      images,
-    } = data;
+      style,
+      stockQuantity,
+      images
+    } = body;
 
-    // Find the category by slug
-    const category = await prisma.category.findUnique({
-      where: { slug: categorySlug }
-    });
-
-    if (!category) {
-      return NextResponse.json(
-        { error: 'Category not found' },
-        { status: 400 }
-      );
-    }
+    // Generate slug from name
+    const slug = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
 
     const product = await prisma.product.create({
       data: {
         name,
         description,
-        price: parseFloat(price),
-        categoryId: category.id,
+        price,
+        slug,
         color,
-        status: 'IN_STOCK',
-        slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+        style,
+        stockQuantity,
+        category: {
+          connect: {
+            id: categoryId
+          }
+        },
         images: {
           create: images.map((url: string) => ({ url }))
         }
@@ -139,7 +128,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating product:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Failed to create product' },
       { status: 500 }
     );
   }
