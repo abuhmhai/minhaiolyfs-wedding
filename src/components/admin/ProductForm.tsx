@@ -121,36 +121,29 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     setIsLoading(true);
 
     try {
-      const formDataObj = new FormData();
-      formDataObj.append('name', formData.name);
-      formDataObj.append('description', formData.description || '');
-      formDataObj.append('price', formData.price || '0');
-      formDataObj.append('categoryId', formData.categoryId);
-      formDataObj.append('stockQuantity', formData.stockQuantity || '0');
-      formDataObj.append('status', formData.status);
-      formDataObj.append('style', formData.style);
-      formDataObj.append('color', formData.color);
-      
-      // Handle images properly
-      if (product) {
-        // When editing, only send the current set of images
-        formData.images.forEach((url: string) => {
-          formDataObj.append('existingImages', url);
-        });
-      } else {
-        // When creating new product, send all images
-        formData.images.forEach((url: string) => {
-          formDataObj.append('images', url);
-        });
-      }
+      const productData = {
+        name: formData.name,
+        description: formData.description || '',
+        price: parseFloat(formData.price) || 0,
+        categoryId: parseInt(formData.categoryId),
+        stockQuantity: parseInt(formData.stockQuantity) || 0,
+        status: formData.status,
+        style: formData.style,
+        color: formData.color,
+        images: formData.images,
+      };
 
       const response = await fetch(`/api/admin/products${product ? `/${product.id}` : ''}`, {
         method: product ? 'PUT' : 'POST',
-        body: formDataObj,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to save product');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to save product');
       }
 
       toast.success(`Product ${product ? 'updated' : 'created'} successfully`);
@@ -315,12 +308,12 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                     value={formData.style}
                     onChange={(e) => setFormData(prev => ({ ...prev, style: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    required
+                    required={!product}
                   >
                     <option value="">Chọn kiểu dáng</option>
-                    <option value="dang-xoe-ballgown">Dáng xòe/Ballgown</option>
-                    <option value="dang-chu-a">Dáng chữ A</option>
-                    <option value="dang-duoi-ca-mermaid">Dáng đuôi cá/Mermaid</option>
+                    <option value="DANG_XOE_BALLGOWN">Dáng xòe/Ballgown</option>
+                    <option value="DANG_CHU_A">Dáng chữ A</option>
+                    <option value="DANG_DUOI_CA_MERMAID">Dáng đuôi cá/Mermaid</option>
                   </select>
                 </div>
               )}
@@ -335,20 +328,20 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                   value={formData.color}
                   onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  required
+                  required={!product}
                 >
                   <option value="">Chọn màu sắc</option>
                   {formData.categoryId && categories.find(c => c.id === parseInt(formData.categoryId))?.slug === 'ao-cuoi' ? (
                     <>
-                      <option value="offwhite">Offwhite</option>
-                      <option value="ivory">Ivory</option>
-                      <option value="nude">Nude</option>
+                      <option value="OFFWHITE">Offwhite</option>
+                      <option value="IVORY">Ivory</option>
+                      <option value="NUDE">Nude</option>
                     </>
                   ) : (
                     <>
-                      <option value="do">Đỏ</option>
-                      <option value="hong">Hồng</option>
-                      <option value="trang">Trắng</option>
+                      <option value="DO">Đỏ</option>
+                      <option value="HONG">Hồng</option>
+                      <option value="TRANG">Trắng</option>
                     </>
                   )}
                 </select>

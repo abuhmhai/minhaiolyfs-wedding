@@ -14,16 +14,15 @@ type ProductWithImages = Product & {
 };
 
 type OrderWithItems = Order & {
-  orderItems: (OrderItem & {
+  items: (OrderItem & {
     product: ProductWithImages;
   })[];
-  fullName: string;
-  phone: string;
-  address: string;
-  note: string | null;
-  total: number;
-  status: OrderStatus;
-  createdAt: Date;
+  user: {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
 };
 
 export default function OrderDetailsPage() {
@@ -32,7 +31,6 @@ export default function OrderDetailsPage() {
   const [order, setOrder] = useState<OrderWithItems | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const fetchOrder = async () => {
     try {
@@ -48,38 +46,10 @@ export default function OrderDetailsPage() {
       const data = await response.json();
       setOrder(data);
     } catch (error) {
-      console.error('Error fetching order:', error);
-      setError(error instanceof Error ? error.message : 'An error occurred while fetching order');
-      toast.error('Không thể tải thông tin đơn hàng');
+      setError(error instanceof Error ? error.message : 'Failed to fetch order');
+      toast.error('Failed to load order details');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const updateOrderStatus = async (newStatus: OrderStatus) => {
-    try {
-      setUpdatingStatus(true);
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update order status');
-      }
-
-      const updatedOrder = await response.json();
-      setOrder(updatedOrder);
-      toast.success('Cập nhật trạng thái đơn hàng thành công');
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      toast.error('Không thể cập nhật trạng thái đơn hàng');
-    } finally {
-      setUpdatingStatus(false);
     }
   };
 
@@ -90,156 +60,84 @@ export default function OrderDetailsPage() {
   }, [orderId]);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-      </div>
-    );
+    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-red-800 font-medium mb-2">Lỗi</h2>
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={() => {
-              fetchOrder();
-            }}
-            className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200"
-          >
-            Thử lại
-          </button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-red-500 mb-4">{error}</p>
+        <Link href="/admin/order" className="text-blue-500 hover:underline">
+          Back to Orders
+        </Link>
       </div>
     );
   }
 
   if (!order) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">Không tìm thấy đơn hàng</p>
-          <Link href="/admin/order" className="text-blue-600 hover:text-blue-800 mt-4 inline-block">
-            Quay lại danh sách đơn hàng
-          </Link>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <p className="text-gray-500 mb-4">Order not found</p>
+        <Link href="/admin/order" className="text-blue-500 hover:underline">
+          Back to Orders
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Chi tiết đơn hàng #{order.id}</h1>
-        <Link
-          href="/admin/order"
-          className="text-blue-600 hover:text-blue-800 flex items-center gap-2"
-        >
-          Quay lại danh sách đơn hàng
+      <div className="mb-6">
+        <Link href="http://localhost:3000/admin/order" className="text-blue-500 hover:underline">
+          ← Back to Orders
         </Link>
       </div>
+      
+      <h1 className="text-2xl font-bold mb-6">Order Details</h1>
+      
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Order Information</h2>
+            <div className="space-y-2">
+              <p><span className="font-medium">Order ID:</span> {order.id}</p>
+              <p><span className="font-medium">Status:</span> {order.status}</p>
+              <p><span className="font-medium">Created:</span> {format(new Date(order.createdAt), 'PPP', { locale: vi })}</p>
+              <p><span className="font-medium">Total:</span> {order.total.toLocaleString('vi-VN')}đ</p>
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Order Items */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Sản phẩm</h2>
-          <div className="space-y-4">
-            {order.orderItems.map((item) => (
-              <div key={item.id} className="flex gap-4 p-4 border rounded-lg">
-                <div className="relative w-24 h-24 rounded overflow-hidden">
+            <h2 className="text-lg font-semibold mt-6 mb-4">Customer Information</h2>
+            <div className="space-y-2">
+              <p><span className="font-medium">Name:</span> {order.user?.fullName || 'N/A'}</p>
+              <p><span className="font-medium">Email:</span> {order.user?.email || 'N/A'}</p>
+              <p><span className="font-medium">Phone:</span> {order.user?.phone || 'N/A'}</p>
+              <p><span className="font-medium">Address:</span> {order.user?.address || 'N/A'}</p>
+            </div>
+          </div>
+          
+          <div>
+            <h2 className="text-lg font-semibold mb-4">Items</h2>
+            {order.items?.map((item) => (
+              <div key={item.id} className="border-b py-4">
+                <div className="flex items-center gap-4">
                   {item.product.images?.[0] && (
                     <Image
                       src={item.product.images[0].url}
                       alt={item.product.name}
-                      fill
-                      className="object-cover"
+                      width={80}
+                      height={80}
+                      className="rounded"
                     />
                   )}
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-medium">{item.product.name}</h3>
-                  <p className="text-gray-500 text-sm">
-                    Size: {item.size || 'N/A'} - Số lượng: {item.quantity}
-                  </p>
-                  <p className="text-gray-900 font-medium mt-1">
-                    {(item.price * item.quantity).toLocaleString('vi-VN')}đ
-                  </p>
+                  <div>
+                    <p className="font-medium">{item.product.name}</p>
+                    <p>Quantity: {item.quantity}</p>
+                    <p>Price: {item.price.toLocaleString('vi-VN')}đ</p>
+                    <p>Subtotal: {(item.price * item.quantity).toLocaleString('vi-VN')}đ</p>
+                  </div>
                 </div>
               </div>
             ))}
-            <div className="border-t pt-4">
-              <div className="flex justify-between font-bold">
-                <span>Tổng cộng:</span>
-                <span>{order.total.toLocaleString('vi-VN')}đ</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Order Information */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold mb-4">Thông tin đơn hàng</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Trạng thái</h3>
-              <div className="mt-2 flex items-center gap-2">
-                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                  order.status === OrderStatus.PENDING ? 'bg-yellow-100 text-yellow-800' :
-                  order.status === OrderStatus.PROCESSING ? 'bg-blue-100 text-blue-800' :
-                  order.status === OrderStatus.SHIPPED ? 'bg-purple-100 text-purple-800' :
-                  order.status === OrderStatus.DELIVERED ? 'bg-green-100 text-green-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {order.status === OrderStatus.PENDING ? 'Chờ xử lý' :
-                   order.status === OrderStatus.PROCESSING ? 'Đang xử lý' :
-                   order.status === OrderStatus.SHIPPED ? 'Đang giao hàng' :
-                   order.status === OrderStatus.DELIVERED ? 'Đã giao hàng' :
-                   'Đã hủy'}
-                </span>
-                {order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CANCELLED && (
-                  <select
-                    value={order.status}
-                    onChange={(e) => updateOrderStatus(e.target.value as OrderStatus)}
-                    disabled={updatingStatus}
-                    className="ml-2 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value={OrderStatus.PENDING}>Chờ xử lý</option>
-                    <option value={OrderStatus.PROCESSING}>Đang xử lý</option>
-                    <option value={OrderStatus.SHIPPED}>Đang giao hàng</option>
-                    <option value={OrderStatus.DELIVERED}>Đã giao hàng</option>
-                    <option value={OrderStatus.CANCELLED}>Hủy đơn hàng</option>
-                  </select>
-                )}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Ngày đặt hàng</h3>
-              <p className="mt-1">
-                {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
-              </p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Người đặt</h3>
-              <p className="mt-1">{order.fullName || 'Không có thông tin'}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Số điện thoại</h3>
-              <p className="mt-1">{order.phone || 'Không có thông tin'}</p>
-            </div>
-            <div>
-              <h3 className="text-sm font-medium text-gray-500">Địa chỉ giao hàng</h3>
-              <p className="mt-1">{order.address || 'Không có thông tin'}</p>
-            </div>
-            {order.note && (
-              <div>
-                <h3 className="text-sm font-medium text-gray-500">Ghi chú</h3>
-                <p className="mt-1">{order.note}</p>
-              </div>
-            )}
           </div>
         </div>
       </div>

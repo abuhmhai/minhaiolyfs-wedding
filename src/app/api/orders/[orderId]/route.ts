@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/db';
 
 export async function GET(
-  req: Request,
+  request: Request,
   { params }: { params: { orderId: string } }
 ) {
   try {
@@ -13,16 +13,13 @@ export async function GET(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const orderId = params.orderId;
-    if (!orderId) {
-      return new NextResponse('Order ID is required', { status: 400 });
+    const orderId = parseInt(await params.orderId);
+    if (isNaN(orderId)) {
+      return new NextResponse('Invalid Order ID', { status: 400 });
     }
 
     const order = await prisma.order.findUnique({
-      where: {
-        id: parseInt(orderId),
-        userId: parseInt(session.user.id)
-      },
+      where: { id: orderId },
       include: {
         items: {
           include: {
@@ -32,12 +29,18 @@ export async function GET(
               }
             }
           }
-        }
+        },
+        user: true
       }
     });
 
     if (!order) {
       return new NextResponse('Order not found', { status: 404 });
+    }
+
+    // Check if the user is authorized to view this order
+    if (session.user.role !== 'admin' && order.userId !== parseInt(session.user.id)) {
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     return NextResponse.json(order);

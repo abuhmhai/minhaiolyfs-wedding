@@ -1,27 +1,21 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { ProductStatus } from '@prisma/client';
+import { ProductStatus, WeddingDressStyle, WeddingDressColor, AoDaiColor, Role } from '@prisma/client';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    console.log("Processing product update for ID:", params.id);
+    const session = await getServerSession(authOptions);
+    if (!session?.user || session.user.role !== Role.admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const formData = await request.formData();
-    const name = formData.get("name") as string;
-    const description = formData.get("description") as string;
-    const price = parseFloat(formData.get("price") as string);
-    const categoryId = parseInt(formData.get("categoryId") as string);
-    const color = formData.get("color") as string;
-    const style = formData.get("style") as string;
-    const status = formData.get("status") as ProductStatus;
-    const stockQuantity = parseInt(formData.get("stockQuantity") as string);
-    const images = formData.getAll("images") as File[];
-    const existingImages = formData.getAll("existingImages") as string[];
-
-    console.log("Received form data:", {
+    const body = await request.json();
+    const {
       name,
       description,
       price,
@@ -30,8 +24,19 @@ export async function PUT(
       style,
       status,
       stockQuantity,
-      imagesCount: images.length,
-      existingImagesCount: existingImages.length
+      images
+    } = body;
+
+    console.log("Received request data:", {
+      name,
+      description,
+      price,
+      categoryId,
+      color,
+      style,
+      status,
+      stockQuantity,
+      imagesCount: images?.length || 0
     });
 
     if (!name || !price || !categoryId) {
@@ -41,7 +46,7 @@ export async function PUT(
       );
     }
 
-    // Validate style and color based on category
+    // Get category to validate style and color
     const category = await prisma.category.findUnique({
       where: { id: categoryId }
     });
@@ -53,66 +58,84 @@ export async function PUT(
       );
     }
 
+    // Validate style and color based on category
+    let normalizedStyle: WeddingDressStyle | null = null;
+    let normalizedColor: WeddingDressColor | AoDaiColor | null = null;
+
     if (category.slug === 'ao-cuoi') {
-      if (!style || !['dang-xoe-ballgown', 'dang-chu-a', 'dang-duoi-ca-mermaid'].includes(style)) {
+      const validStyles = ['DANG_XOE_BALLGOWN', 'DANG_CHU_A', 'DANG_DUOI_CA_MERMAID'];
+      const styleUpper = style?.toUpperCase();
+      if (style && !validStyles.includes(styleUpper)) {
         return NextResponse.json(
           { error: "Invalid style for wedding dress" },
           { status: 400 }
         );
       }
-      if (!color || !['offwhite', 'ivory', 'nude'].includes(color)) {
+      normalizedStyle = styleUpper as WeddingDressStyle;
+      
+      const colorUpper = color?.toUpperCase();
+      if (color && !['OFFWHITE', 'IVORY', 'NUDE'].includes(colorUpper)) {
         return NextResponse.json(
           { error: "Invalid color for wedding dress" },
           { status: 400 }
         );
       }
+      normalizedColor = colorUpper as WeddingDressColor;
     } else if (category.slug === 'ao-dai-co-dau') {
-      if (!color || !['do', 'hong', 'trang'].includes(color)) {
+      const colorUpper = color?.toUpperCase();
+      if (color && !['DO', 'HONG', 'TRANG'].includes(colorUpper)) {
         return NextResponse.json(
           { error: "Invalid color for traditional dress" },
           { status: 400 }
         );
       }
+      normalizedColor = colorUpper as AoDaiColor;
     }
 
     // Generate slug from name
     const slug = name
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+
+    const productId = parseInt(await params.id);
+    if (isNaN(productId)) {
+      return NextResponse.json(
+        { error: "Invalid product ID" },
+        { status: 400 }
+      );
+    }
 
     try {
       // First, delete all existing images
       await prisma.productImage.deleteMany({
-        where: { productId: parseInt(params.id) }
+        where: { productId }
       });
-
-      // Prepare image data
-      let imageData = undefined;
-      if (existingImages.length > 0) {
-        console.log("Setting existing images");
-        imageData = {
-          create: existingImages.map((url) => ({
-            url,
-          })),
-        };
-      }
 
       // Update product
       const updatedProduct = await prisma.product.update({
-        where: { id: parseInt(params.id) },
+        where: { id: productId },
         data: {
           name,
           description,
           price,
           categoryId,
-          color,
-          style,
+          color: normalizedColor,
+          style: normalizedStyle,
           status,
           stockQuantity,
           slug,
-          images: imageData,
+          images: {
+            create: images?.map((url: string) => ({ url })) || []
+          }
         },
+        include: {
+          images: true,
+          category: true
+        }
       });
 
       return NextResponse.json(updatedProduct);

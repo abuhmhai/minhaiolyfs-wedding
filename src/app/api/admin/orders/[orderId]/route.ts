@@ -14,14 +14,14 @@ export async function GET(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const orderId = params.orderId;
-    if (!orderId) {
-      return new NextResponse('Order ID is required', { status: 400 });
+    const orderId = parseInt(params.orderId);
+    if (isNaN(orderId)) {
+      return new NextResponse('Invalid Order ID', { status: 400 });
     }
 
     const order = await prisma.order.findUnique({
       where: {
-        id: parseInt(orderId)
+        id: orderId
       },
       include: {
         items: {
@@ -36,6 +36,7 @@ export async function GET(
         user: {
           select: {
             fullName: true,
+            email: true,
             phone: true,
             address: true
           }
@@ -64,9 +65,9 @@ export async function PATCH(
       return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    const orderId = params.orderId;
-    if (!orderId) {
-      return new NextResponse('Order ID is required', { status: 400 });
+    const orderId = parseInt(params.orderId);
+    if (isNaN(orderId)) {
+      return new NextResponse('Invalid Order ID', { status: 400 });
     }
 
     const body = await req.json();
@@ -76,51 +77,68 @@ export async function PATCH(
       return new NextResponse('Invalid status', { status: 400 });
     }
 
-    const order = await prisma.order.findUnique({
-      where: {
-        id: parseInt(orderId)
-      },
-      include: {
-        items: {
-          include: {
-            product: true
-          }
-        }
-      }
-    });
-
-    if (!order) {
-      return new NextResponse('Order not found', { status: 404 });
-    }
-
-    const updatedOrder = await prisma.order.update({
-      where: {
-        id: parseInt(orderId)
-      },
-      data: {
-        status
-      },
-      include: {
-        items: {
-          include: {
-            product: {
-              include: {
-                images: true
-              }
+    // Start a transaction to ensure data consistency
+    const result = await prisma.$transaction(async (prisma) => {
+      // Get the current order with items
+      const order = await prisma.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: {
+            include: {
+              product: true
             }
           }
-        },
-        user: {
-          select: {
-            fullName: true,
-            phone: true,
-            address: true
-          }
+        }
+      });
+
+      if (!order) {
+        throw new Error('Order not found');
+      }
+
+      // If status is changing to DELIVERED, update product quantities
+      if (status === 'DELIVERED' && order.status !== 'DELIVERED') {
+        // Update quantities for each item in the order
+        for (const item of order.items) {
+          await prisma.product.update({
+            where: { id: item.productId },
+            data: {
+              stockQuantity: {
+                decrement: item.quantity
+              }
+            }
+          });
         }
       }
+
+      // Update the order status
+      const updatedOrder = await prisma.order.update({
+        where: { id: orderId },
+        data: { status },
+        include: {
+          items: {
+            include: {
+              product: {
+                include: {
+                  images: true
+                }
+              }
+            }
+          },
+          user: {
+            select: {
+              fullName: true,
+              email: true,
+              phone: true,
+              address: true
+            }
+          }
+        }
+      });
+
+      return updatedOrder;
     });
 
-    return NextResponse.json(updatedOrder);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error updating order:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
