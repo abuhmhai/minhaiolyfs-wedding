@@ -103,6 +103,10 @@ export const authOptions: NextAuthOptions = {
         session.user.address = token.address;
       }
       return session;
+    },
+    async signOut({ token, session }) {
+      // Clean up any session data if needed
+      return true;
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
