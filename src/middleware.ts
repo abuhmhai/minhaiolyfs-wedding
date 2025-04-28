@@ -22,7 +22,8 @@ export async function middleware(request: NextRequest) {
     // Get the token and verify session
     const token = await getToken({ 
       req: request,
-      secret: process.env.NEXTAUTH_SECRET
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production'
     });
 
     // Protected routes that require authentication
@@ -40,7 +41,7 @@ export async function middleware(request: NextRequest) {
     if (isProtectedRoute && !token) {
       // Store the original URL to redirect back after login
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
+      loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
@@ -48,7 +49,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/admin')) {
       if (!token) {
         const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
+        loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
       }
 
@@ -60,8 +61,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   } catch (error) {
     console.error('Middleware error:', error);
-    // On error, redirect to login to be safe
-    return NextResponse.redirect(new URL('/login', request.url));
+    // On error, redirect to login with the current path as callback
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 }
 
