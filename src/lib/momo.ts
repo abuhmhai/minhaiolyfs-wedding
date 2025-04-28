@@ -4,8 +4,8 @@ const MOMO_CONFIG = {
   accessKey: 'F8BBA842ECF85',
   secretKey: 'K951B6PE1waDMi640xX08PD3vg6EkVlz',
   partnerCode: 'MOMO',
-  redirectUrl: 'http://localhost:3000/payment/success',
-  ipnUrl: 'http://localhost:3000/api/payment/momo/webhook',
+  redirectUrl: 'https://minhaiolyfs-wedding-qzta-csj2r4iz2-abuhmhais-projects.vercel.app/payment/success',
+  ipnUrl: 'https://minhaiolyfs-wedding-qzta-csj2r4iz2-abuhmhais-projects.vercel.app/api/payment/momo/webhook',
   requestType: 'payWithMethod',
   lang: 'vi',
   endpoint: 'https://test-payment.momo.vn/v2/gateway/api/create'

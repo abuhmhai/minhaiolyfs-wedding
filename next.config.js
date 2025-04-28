@@ -40,7 +40,10 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ["localhost:3000"],
+      allowedOrigins: [
+        "localhost:3000",
+        "minhaiolyfs-wedding-qzta-csj2r4iz2-abuhmhais-projects.vercel.app"
+      ],
     },
     webpackBuildWorker: true,
   },
