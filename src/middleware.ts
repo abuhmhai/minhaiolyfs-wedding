@@ -3,72 +3,84 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  const session = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  const isAuth = !!session;
+  try {
+    const { pathname } = request.nextUrl;
+    
+    // Skip middleware for public assets and API routes
+    if (
+      pathname.startsWith('/_next') || 
+      pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/static') ||
+      pathname.startsWith('/images') ||
+      pathname === '/login' ||
+      pathname === '/register' ||
+      pathname === '/'
+    ) {
+      return NextResponse.next();
+    }
 
-  // Skip middleware for public assets and API routes
-  if (
-    request.nextUrl.pathname.startsWith('/_next') || 
-    request.nextUrl.pathname.startsWith('/api/auth') ||
-    request.nextUrl.pathname.startsWith('/static') ||
-    request.nextUrl.pathname.startsWith('/images') ||
-    request.nextUrl.pathname === '/login' ||
-    request.nextUrl.pathname === '/register' ||
-    request.nextUrl.pathname === '/'
-  ) {
-    return NextResponse.next();
-  }
+    // Get the token and verify session
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET,
+      secureCookie: process.env.NODE_ENV === 'production',
+      cookieName: 'next-auth.session-token'
+    });
 
-  // Protected routes that require authentication
-  const protectedRoutes = [
-    '/account',
-    '/cart',
-    '/checkout',
-    '/profile',
-    '/information'
-  ];
+    // Protected routes that require authentication
+    const protectedRoutes = [
+      '/account',
+      '/cart',
+      '/checkout',
+      '/profile',
+      '/information'
+    ];
 
-  // Admin route protection
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (!isAuth) {
+    // Check if the current path is a protected route
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+
+    if (isProtectedRoute && !token) {
+      // Store the original URL to redirect back after login
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+      loginUrl.searchParams.set('callbackUrl', pathname);
       return NextResponse.redirect(loginUrl);
     }
 
-    if (session.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+    // Admin route protection
+    if (pathname.startsWith('/admin')) {
+      if (!token) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('callbackUrl', pathname);
+        return NextResponse.redirect(loginUrl);
+      }
 
-  // Handle API routes
-  if (request.nextUrl.pathname.startsWith('/api')) {
-    if (!isAuth) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      if (token.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
     }
+
+    // Add token to request headers for API routes
+    if (pathname.startsWith('/api/')) {
+      const requestHeaders = new Headers(request.headers);
+      if (token) {
+        requestHeaders.set('x-user-id', token.id);
+        requestHeaders.set('x-user-role', token.role);
+      }
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
+    }
+
     return NextResponse.next();
+  } catch (error) {
+    console.error('Middleware error:', error);
+    // On error, redirect to login with the current path as callback
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
-
-  // Handle protected routes
-  if (protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
-    if (!isAuth) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
-  }
-
-  // Handle auth routes
-  const authRoutes = ['/login', '/register'];
-  if (authRoutes.includes(request.nextUrl.pathname)) {
-    if (isAuth) {
-      return NextResponse.redirect(new URL('/my-orders', request.url));
-    }
-    return NextResponse.next();
-  }
-
-  return NextResponse.next();
 }
 
 export const config = {
