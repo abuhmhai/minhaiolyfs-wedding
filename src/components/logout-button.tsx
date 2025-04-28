@@ -11,12 +11,17 @@ export function LogoutButton() {
   const handleLogout = async () => {
     try {
       setIsLoading(true);
-      await signOut({ 
+      const result = await signOut({ 
         redirect: false,
         callbackUrl: '/'
       });
-      router.push('/');
-      router.refresh();
+      
+      // Clear any local storage or session storage if needed
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Force a hard refresh of the page
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
     } finally {

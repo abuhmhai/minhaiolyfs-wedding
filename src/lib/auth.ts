@@ -105,7 +105,17 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signOut({ token, session }) {
-      // Clean up any session data if needed
+      // Clean up session and token data
+      if (token) {
+        token.id = undefined;
+        token.role = undefined;
+        token.fullName = undefined;
+        token.phone = undefined;
+        token.address = undefined;
+      }
+      if (session) {
+        session.user = undefined;
+      }
       return true;
     }
   },
