@@ -23,7 +23,8 @@ export async function middleware(request: NextRequest) {
     const token = await getToken({ 
       req: request,
       secret: process.env.NEXTAUTH_SECRET,
-      secureCookie: process.env.NODE_ENV === 'production'
+      secureCookie: process.env.NODE_ENV === 'production',
+      cookieName: 'next-auth.session-token'
     });
 
     // Protected routes that require authentication
@@ -56,6 +57,20 @@ export async function middleware(request: NextRequest) {
       if (token.role !== 'admin') {
         return NextResponse.redirect(new URL('/', request.url));
       }
+    }
+
+    // Add token to request headers for API routes
+    if (pathname.startsWith('/api/')) {
+      const requestHeaders = new Headers(request.headers);
+      if (token) {
+        requestHeaders.set('x-user-id', token.id);
+        requestHeaders.set('x-user-role', token.role);
+      }
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
     }
 
     return NextResponse.next();
