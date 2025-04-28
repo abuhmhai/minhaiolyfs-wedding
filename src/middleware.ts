@@ -3,51 +3,70 @@ import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const token = await getToken({ req: request });
+  try {
+    const { pathname } = request.nextUrl;
+    
+    // Skip middleware for public assets and API routes
+    if (
+      pathname.startsWith('/_next') || 
+      pathname.startsWith('/api/auth') ||
+      pathname.startsWith('/static') ||
+      pathname.startsWith('/images') ||
+      pathname === '/login' ||
+      pathname === '/register' ||
+      pathname === '/'
+    ) {
+      return NextResponse.next();
+    }
 
-  // Protected routes that require authentication
-  const protectedRoutes = [
-    '/account',
-    '/cart',
-    '/checkout',
-    '/profile',
-    '/information'
-  ];
+    // Get the token and verify session
+    const token = await getToken({ 
+      req: request,
+      secret: process.env.NEXTAUTH_SECRET
+    });
 
-  // Check if the current path is a protected route
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+    // Protected routes that require authentication
+    const protectedRoutes = [
+      '/account',
+      '/cart',
+      '/checkout',
+      '/profile',
+      '/information'
+    ];
 
-  if (isProtectedRoute && !token) {
-    // Redirect to login if trying to access a protected route without authentication
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('callbackUrl', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
+    // Check if the current path is a protected route
+    const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
-  // Admin route protection
-  if (pathname.startsWith('/admin')) {
-    if (!token) {
+    if (isProtectedRoute && !token) {
+      // Store the original URL to redirect back after login
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
+      loginUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
       return NextResponse.redirect(loginUrl);
     }
 
-    if (token.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-  }
+    // Admin route protection
+    if (pathname.startsWith('/admin')) {
+      if (!token) {
+        const loginUrl = new URL('/login', request.url);
+        loginUrl.searchParams.set('callbackUrl', encodeURIComponent(pathname));
+        return NextResponse.redirect(loginUrl);
+      }
 
-  return NextResponse.next();
+      if (token.role !== 'admin') {
+        return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
+
+    return NextResponse.next();
+  } catch (error) {
+    console.error('Middleware error:', error);
+    // On error, redirect to login to be safe
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
 }
 
 export const config = {
   matcher: [
-    '/account/:path*',
-    '/cart/:path*',
-    '/checkout/:path*',
-    '/profile/:path*',
-    '/information/:path*',
-    '/admin/:path*'
+    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
   ],
 }; 
