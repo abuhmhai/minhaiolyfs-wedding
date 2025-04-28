@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     // Update order status based on resultCode
     let status: OrderStatus = OrderStatus.PENDING;
     if (payload.resultCode === 0 || payload.resultCode === 9000) {
-      status = OrderStatus.PROCESSING; // Only update to PROCESSING after successful payment
+      status = OrderStatus.PENDING; // Keep status as PENDING after successful payment
     }
 
     // Start a transaction to update order status and clear cart

@@ -11,9 +11,22 @@ const MOMO_CONFIG = {
   endpoint: 'https://test-payment.momo.vn/v2/gateway/api/create'
 };
 
+function generateRequestId() {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 8);
+  return `${timestamp}${random}`;
+}
+
+function generateUniqueOrderId(baseOrderId: string) {
+  const timestamp = Date.now();
+  return `${baseOrderId}_${timestamp}`;
+}
+
 export async function createPaymentRequest(orderId: string, amount: number, orderInfo: string) {
-  const requestId = orderId;
-  const rawSignature = `accessKey=${MOMO_CONFIG.accessKey}&amount=${amount}&extraData=&ipnUrl=${MOMO_CONFIG.ipnUrl}&orderId=${orderId}&orderInfo=${orderInfo}&partnerCode=${MOMO_CONFIG.partnerCode}&redirectUrl=${MOMO_CONFIG.redirectUrl}&requestId=${requestId}&requestType=${MOMO_CONFIG.requestType}`;
+  const requestId = generateRequestId();
+  const uniqueOrderId = generateUniqueOrderId(orderId);
+  
+  const rawSignature = `accessKey=${MOMO_CONFIG.accessKey}&amount=${amount}&extraData=&ipnUrl=${MOMO_CONFIG.ipnUrl}&orderId=${uniqueOrderId}&orderInfo=${orderInfo}&partnerCode=${MOMO_CONFIG.partnerCode}&redirectUrl=${MOMO_CONFIG.redirectUrl}&requestId=${requestId}&requestType=${MOMO_CONFIG.requestType}`;
 
   const signature = crypto
     .createHmac('sha256', MOMO_CONFIG.secretKey)
@@ -26,7 +39,7 @@ export async function createPaymentRequest(orderId: string, amount: number, orde
     storeId: "MomoTestStore",
     requestId: requestId,
     amount: amount,
-    orderId: orderId,
+    orderId: uniqueOrderId,
     orderInfo: orderInfo,
     redirectUrl: MOMO_CONFIG.redirectUrl,
     ipnUrl: MOMO_CONFIG.ipnUrl,

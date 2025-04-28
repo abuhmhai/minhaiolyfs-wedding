@@ -87,7 +87,7 @@ export default function CheckoutPage() {
             rentalDurationId: item.rentalDurationId
           })),
           total,
-          ...formData
+          note: formData.note
         }),
       });
 
@@ -114,17 +114,24 @@ export default function CheckoutPage() {
 
       const paymentData = await paymentResponse.json();
 
+      // Check for specific MoMo error codes
+      if (paymentData.resultCode === 41) {
+        throw new Error('Đơn hàng đã tồn tại. Vui lòng thử lại sau.');
+      } else if (paymentData.resultCode !== 0) {
+        throw new Error(`Lỗi thanh toán: ${paymentData.message}`);
+      }
+
       // Redirect to MoMo payment page
       if (paymentData.payUrl) {
         window.location.href = paymentData.payUrl;
       } else {
         console.error('No payment URL received:', paymentData);
-        throw new Error('Không thể tạo yêu cầu thanh toán');
+        throw new Error('Không thể tạo yêu cầu thanh toán. Vui lòng thử lại sau.');
       }
 
     } catch (error) {
       console.error('Checkout error:', error);
-      toast.error('Đã có lỗi xảy ra. Vui lòng thử lại.');
+      toast.error(error instanceof Error ? error.message : 'Đã có lỗi xảy ra. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }

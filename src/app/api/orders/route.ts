@@ -11,29 +11,14 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { items, total, fullName, phone, address, note } = body;
+    const { items, total, note } = body;
 
-    // Get user information
-    const user = await prisma.user.findUnique({
-      where: {
-        id: parseInt(session.user.id)
-      }
-    });
-
-    if (!user) {
-      return new NextResponse('User not found', { status: 404 });
-    }
-
-    // Create order
+    // Create order using session user information
     const order = await prisma.order.create({
       data: {
         userId: parseInt(session.user.id),
         total,
         status: 'PENDING',
-        fullName: fullName || user.fullName,
-        phone: phone || user.phone || '',
-        address: address || user.address || '',
-        note: note || '',
         items: {
           create: items.map((item: any) => ({
             productId: item.productId,
