@@ -32,8 +32,7 @@ export async function middleware(request: NextRequest) {
       '/cart',
       '/checkout',
       '/profile',
-      '/information',
-      '/admin'
+      '/information'
     ];
 
     // Check if the current path is a protected route
