@@ -6,6 +6,7 @@ import Footer from '@/components/footer';
 import { Toaster } from 'sonner';
 import { NextAuthProvider } from '@/providers/NextAuthProvider';
 import ClientBody from '@/components/client/ClientBody';
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: 'Wedding Dress Rental',
@@ -35,6 +36,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <Toaster position="top-right" />
+            <SpeedInsights />
           </ClientBody>
         </NextAuthProvider>
       </body>
