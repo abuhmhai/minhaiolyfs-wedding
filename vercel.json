@@ -1,0 +1,23 @@
+{
+  "rewrites": [
+    {
+      "source": "/payment/success",
+      "destination": "/payment/success"
+    },
+    {
+      "source": "/api/payment/momo/webhook",
+      "destination": "/api/payment/momo/webhook"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/payment/success",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
+      ]
+    }
+  ]
+} 

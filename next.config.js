@@ -47,6 +47,18 @@ const nextConfig = {
     },
     webpackBuildWorker: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/payment/success',
+        destination: '/payment/success',
+      },
+      {
+        source: '/api/payment/momo/webhook',
+        destination: '/api/payment/momo/webhook',
+      }
+    ];
+  }
 };
 
 module.exports = nextConfig;
