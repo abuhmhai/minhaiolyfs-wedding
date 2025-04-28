@@ -1,29 +1,36 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 export function LogoutButton() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     try {
       setIsLoading(true);
-      const result = await signOut({ 
+      
+      // First, clear any local storage and cookies
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Delete the session cookie
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+      
+      // Then sign out
+      await signOut({ 
         redirect: false,
         callbackUrl: '/'
       });
       
-      // Clear any local storage or session storage if needed
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Force a hard refresh of the page
+      // Force a complete page reload to ensure all session data is cleared
       window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
+      // Even if there's an error, we should still try to clear the session
+      window.location.href = '/';
     } finally {
       setIsLoading(false);
     }

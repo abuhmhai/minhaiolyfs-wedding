@@ -2,6 +2,8 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
 import { compare } from "bcrypt";
+import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
 const prisma = new PrismaClient();
 
@@ -36,6 +38,17 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production'
+      }
+    }
   },
   pages: {
     signIn: "/login",
@@ -103,20 +116,27 @@ export const authOptions: NextAuthOptions = {
         session.user.address = token.address;
       }
       return session;
-    },
-    async signOut({ token, session }) {
-      // Clean up session and token data
+    }
+  },
+  events: {
+    async signOut({ token, session }: { token: JWT | null; session: Session | null }) {
       if (token) {
-        token.id = undefined;
-        token.role = undefined;
-        token.fullName = undefined;
-        token.phone = undefined;
-        token.address = undefined;
+        token.id = '';
+        token.role = 'user';
+        token.fullName = '';
+        token.phone = '';
+        token.address = '';
       }
       if (session) {
-        session.user = undefined;
+        session.user = {
+          id: '',
+          email: '',
+          fullName: '',
+          role: 'user',
+          phone: '',
+          address: ''
+        };
       }
-      return true;
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
