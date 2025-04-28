@@ -74,15 +74,15 @@ export default function DashboardPage() {
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
       case OrderStatus.PENDING:
-        return 'Chờ xử lý';
+        return 'Pending';
       case OrderStatus.PROCESSING:
-        return 'Đang xử lý';
+        return 'Processing';
       case OrderStatus.SHIPPED:
-        return 'Đang giao hàng';
+        return 'Shipping';
       case OrderStatus.DELIVERED:
-        return 'Đã giao hàng';
+        return 'Delivered';
       case OrderStatus.CANCELLED:
-        return 'Đã hủy';
+        return 'Cancelled';
       default:
         return status;
     }
@@ -100,12 +100,12 @@ export default function DashboardPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Bảng điều khiển</h1>
+      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tổng số đơn hàng</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -115,7 +115,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đơn hàng đang xử lý</CardTitle>
+            <CardTitle className="text-sm font-medium">Processing Orders</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -125,7 +125,7 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Đơn hàng đang giao</CardTitle>
+            <CardTitle className="text-sm font-medium">Shipping Orders</CardTitle>
             <Truck className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -137,42 +137,42 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
-            <CardTitle>Phân phối trạng thái</CardTitle>
+            <CardTitle>Status Distribution</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                  <span>Chờ xử lý</span>
+                  <span>Pending</span>
                 </div>
                 <span>{stats.pending}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span>Đang xử lý</span>
+                  <span>Processing</span>
                 </div>
                 <span>{stats.processing}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                  <span>Đang giao hàng</span>
+                  <span>Shipping</span>
                 </div>
                 <span>{stats.shipped}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span>Đã giao hàng</span>
+                  <span>Delivered</span>
                 </div>
                 <span>{stats.delivered}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                  <span>Đã hủy</span>
+                  <span>Cancelled</span>
                 </div>
                 <span>{stats.cancelled}</span>
               </div>
@@ -182,14 +182,14 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Đơn hàng gần đây</CardTitle>
+            <CardTitle>Recent Orders</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {stats.recentOrders.map((order) => (
                 <div key={order.id} className="flex items-center justify-between">
                   <div>
-                    <div className="font-medium">Đơn hàng #{order.id}</div>
+                    <div className="font-medium">Order #{order.id}</div>
                     <div className="text-sm text-gray-500">
                       {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
                     </div>

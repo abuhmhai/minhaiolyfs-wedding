@@ -157,10 +157,10 @@ export default function AdminProducts() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-medium">Quản lý sản phẩm</h1>
+        <h1 className="text-2xl font-medium">Product Management</h1>
         {!isEditing && (
           <Button onClick={() => setIsEditing(true)}>
-            Thêm sản phẩm mới
+            Add New Product
           </Button>
         )}
       </div>
@@ -169,7 +169,7 @@ export default function AdminProducts() {
         <form onSubmit={handleSubmit} className="max-w-2xl mx-auto">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Tên sản phẩm</label>
+              <label className="block text-sm font-medium mb-1">Product Name</label>
               <Input
                 name="name"
                 defaultValue={editingProduct?.name}
@@ -178,7 +178,7 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Mô tả</label>
+              <label className="block text-sm font-medium mb-1">Description</label>
               <Textarea
                 name="description"
                 defaultValue={editingProduct?.description || ''}
@@ -186,7 +186,7 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Giá</label>
+              <label className="block text-sm font-medium mb-1">Price</label>
               <Input
                 type="number"
                 name="price"
@@ -196,7 +196,7 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Danh mục</label>
+              <label className="block text-sm font-medium mb-1">Category</label>
               <select
                 name="categoryId"
                 defaultValue={editingProduct?.categoryId}
@@ -213,7 +213,7 @@ export default function AdminProducts() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Màu sắc</label>
+              <label className="block text-sm font-medium mb-1">Color</label>
               <Input
                 name="color"
                 defaultValue={editingProduct?.color || ''}
@@ -221,7 +221,7 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Trạng thái</label>
+              <label className="block text-sm font-medium mb-1">Status</label>
               <select
                 name="status"
                 defaultValue={editingProduct?.status || 'IN_STOCK'}
@@ -236,7 +236,7 @@ export default function AdminProducts() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Số lượng tồn kho</label>
+              <label className="block text-sm font-medium mb-1">Stock Quantity</label>
               <Input
                 type="number"
                 name="stockQuantity"
@@ -247,7 +247,7 @@ export default function AdminProducts() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Hình ảnh</label>
+              <label className="block text-sm font-medium mb-1">Image</label>
               <Input
                 type="file"
                 name="images"

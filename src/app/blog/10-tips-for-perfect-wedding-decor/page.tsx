@@ -76,49 +76,49 @@ export default function BlogPost() {
 
         <h2>6. Cá Nhân Hóa Trang Trí</h2>
         <p>
-          Kết hợp các yếu tố kể câu chuyện của bạn với tư cách là một cặp đôi. Điều này có thể bao gồm:
+          Combine elements that tell your story as a couple. This can include:
         </p>
         <ul>
-          <li>Ảnh từ mối quan hệ của bạn</li>
-          <li>Vật phẩm đại diện cho sở thích chung</li>
-          <li>Yếu tố văn hóa có ý nghĩa với bạn</li>
+          <li>Photos from your relationship</li>
+          <li>Items representing shared interests</li>
+          <li>Cultural elements meaningful to you</li>
         </ul>
 
         <h2>7. Cân Nhắc Thuê Đồ Trang Trí</h2>
         <p>
-          Thuê đồ trang trí có thể là cách tiết kiệm chi phí để đạt được không gian đám cưới mơ ước. Lợi ích bao gồm:
+          Renting decorations can be a cost-effective way to achieve your dream wedding space. Benefits include:
         </p>
         <ul>
-          <li>Tiếp cận các món đồ chất lượng cao với giá phải chăng</li>
-          <li>Lắp đặt và tháo dỡ chuyên nghiệp</li>
-          <li>Không cần lưu trữ đồ sau đám cưới</li>
+          <li>Access to high-quality items at affordable prices</li>
+          <li>Professional setup and takedown</li>
+          <li>No need to store items after the wedding</li>
         </ul>
 
         <h2>8. Đừng Quên Các Chi Tiết</h2>
         <p>
-          Những điểm nhỏ có thể tạo nên sự khác biệt lớn:
+          Small touches can make a big difference:
         </p>
         <ul>
-          <li>Biển hiệu tùy chỉnh</li>
-          <li>Số bàn và thẻ chỗ ngồi</li>
-          <li>Thực đơn</li>
-          <li>Trình bày quà tặng</li>
+          <li>Custom signage</li>
+          <li>Table numbers and seating cards</li>
+          <li>Menu cards</li>
+          <li>Gift presentation</li>
         </ul>
 
         <h2>9. Tạo Điểm Nhấn</h2>
         <p>
-          Mỗi không gian trang trí đám cưới tuyệt vời đều có một yếu tố nổi bật thu hút sự chú ý. Đây có thể là:
+          Every great wedding decor space has a standout element that draws attention. This could be:
         </p>
         <ul>
-          <li>Một tác phẩm hoa nghệ thuật</li>
-          <li>Một phông nền tùy chỉnh</li>
-          <li>Một trung tâm bàn ấn tượng</li>
-          <li>Một cách sắp xếp chỗ ngồi độc đáo</li>
+          <li>An artistic floral arrangement</li>
+          <li>A custom backdrop</li>
+          <li>An impressive centerpiece</li>
+          <li>A unique seating arrangement</li>
         </ul>
 
         <h2>10. Chú Ý Đến Sự Thoải Mái</h2>
         <p>
-          Trong khi thẩm mỹ quan trọng, đừng quên sự thoải mái của khách mời:
+          While aesthetics are important, don't forget about your guests' comfort:
         </p>
         <ul>
           <li>Đảm bảo đủ chỗ ngồi</li>

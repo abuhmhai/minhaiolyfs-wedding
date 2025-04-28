@@ -136,21 +136,21 @@ const AoCuoiCollection = () => {
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
               <Link href="/" className="text-gray-700 hover:text-gray-900">
-                Trang chủ
+                Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 <Link href="/collections" className="text-gray-700 hover:text-gray-900">
-                  Danh mục
+                  Categories
                 </Link>
               </div>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <span className="text-gray-500">Áo cưới</span>
+                <span className="text-gray-500">Wedding Dresses</span>
               </div>
             </li>
           </ol>
@@ -158,7 +158,7 @@ const AoCuoiCollection = () => {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-light text-center">ÁO CƯỚI</h1>
+        <h1 className="text-3xl font-light text-center">WEDDING DRESSES</h1>
       </div>
 
       {/* Mobile filter button */}
@@ -170,7 +170,7 @@ const AoCuoiCollection = () => {
         >
           <span className="flex items-center">
             <Filter className="h-4 w-4 mr-2" />
-            Bộ lọc sản phẩm
+            Product Filters
           </span>
           {mobileFilterOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
         </Button>

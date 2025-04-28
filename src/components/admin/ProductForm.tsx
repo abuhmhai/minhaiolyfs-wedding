@@ -192,7 +192,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-800">
-          {product ? 'Chỉnh Sửa Sản Phẩm' : 'Thêm Sản Phẩm Mới'}
+          {product ? 'Edit Product' : 'Add New Product'}
         </h2>
         <div className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(formData.status)}`}>
           {getStatusText(formData.status)}
@@ -203,35 +203,36 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         {/* Basic Information Section */}
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Thông Tin Cơ Bản</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Basic Information</h3>
             
             <div className="space-y-4">
-              <div>
+              <div className="mb-4">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                  Tên Sản Phẩm
+                  Name
                 </label>
                 <input
                   type="text"
                   id="name"
+                  name="name"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Nhập tên sản phẩm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
 
-              <div>
+              <div className="mb-4">
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                  Mô Tả
+                  Description
                 </label>
                 <textarea
                   id="description"
+                  name="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   rows={4}
-                  placeholder="Nhập mô tả sản phẩm"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
                 />
               </div>
             </div>
@@ -241,22 +242,22 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
         {/* Pricing and Inventory Section */}
         <div className="space-y-6">
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h3 className="text-lg font-semibold text-gray-700 mb-4">Giá & Kho Hàng</h3>
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">Price & Inventory</h3>
             
             <div className="space-y-4">
               <div>
                 <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                  Giá
+                  Price
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-2 text-gray-500">đ</span>
+                  <span className="absolute left-4 top-2 text-gray-500">$</span>
                   <input
                     type="text"
                     id="price"
                     value={formData.price}
                     onChange={(e) => handleNumericInput('price', e.target.value)}
                     className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="Nhập giá sản phẩm"
+                    placeholder="Enter product price"
                     required
                   />
                 </div>
@@ -264,7 +265,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
 
               <div>
                 <label htmlFor="stockQuantity" className="block text-sm font-medium text-gray-700 mb-1">
-                  Số Lượng
+                  Quantity
                 </label>
                 <input
                   type="text"
@@ -272,14 +273,14 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                   value={formData.stockQuantity}
                   onChange={(e) => handleNumericInput('stockQuantity', e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                  placeholder="Nhập số lượng"
+                  placeholder="Enter quantity"
                   required
                 />
               </div>
 
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                  Danh Mục
+                  Category
                 </label>
                 <select
                   id="category"
@@ -288,7 +289,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   required
                 >
-                  <option value="">Chọn danh mục</option>
+                  <option value="">Select a category</option>
                   {categories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -301,7 +302,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
               {formData.categoryId && categories.find(c => c.id === parseInt(formData.categoryId))?.slug === 'ao-cuoi' && (
                 <div>
                   <label htmlFor="style" className="block text-sm font-medium text-gray-700 mb-1">
-                    Kiểu Dáng
+                    Style
                   </label>
                   <select
                     id="style"
@@ -310,10 +311,10 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                     required={!product}
                   >
-                    <option value="">Chọn kiểu dáng</option>
-                    <option value="DANG_XOE_BALLGOWN">Dáng xòe/Ballgown</option>
-                    <option value="DANG_CHU_A">Dáng chữ A</option>
-                    <option value="DANG_DUOI_CA_MERMAID">Dáng đuôi cá/Mermaid</option>
+                    <option value="">Select style</option>
+                    <option value="DANG_XOE_BALLGOWN">Ballgown</option>
+                    <option value="DANG_CHU_A">A-line</option>
+                    <option value="DANG_DUOI_CA_MERMAID">Mermaid</option>
                   </select>
                 </div>
               )}
@@ -321,7 +322,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
               {/* Show color field for both categories */}
               <div>
                 <label htmlFor="color" className="block text-sm font-medium text-gray-700 mb-1">
-                  Màu Sắc
+                  Color
                 </label>
                 <select
                   id="color"
@@ -330,7 +331,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
                   required={!product}
                 >
-                  <option value="">Chọn màu sắc</option>
+                  <option value="">Select color</option>
                   {formData.categoryId && categories.find(c => c.id === parseInt(formData.categoryId))?.slug === 'ao-cuoi' ? (
                     <>
                       <option value="OFFWHITE">Offwhite</option>
@@ -339,9 +340,9 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                     </>
                   ) : (
                     <>
-                      <option value="DO">Đỏ</option>
-                      <option value="HONG">Hồng</option>
-                      <option value="TRANG">Trắng</option>
+                      <option value="DO">Red</option>
+                      <option value="HONG">Pink</option>
+                      <option value="TRANG">White</option>
                     </>
                   )}
                 </select>
@@ -354,13 +355,13 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
       {/* Images Section */}
       <div className="mt-8">
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Hình Ảnh Sản Phẩm</h3>
+          <h3 className="text-lg font-semibold text-gray-700 mb-4">Product Images</h3>
           
           <div className="space-y-4">
             {/* Image Upload Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tải Lên Hình Ảnh
+                Upload Images
               </label>
               <input
                 type="file"
@@ -374,7 +375,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
             {/* Image URLs Section */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URL Hình Ảnh
+                Image URLs
               </label>
               <div className="space-y-3">
                 {imageUrls.map((url, index) => (
@@ -384,7 +385,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                       value={url}
                       onChange={(e) => updateImageUrl(index, e.target.value)}
                       className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                      placeholder="Nhập URL hình ảnh"
+                      placeholder="Enter image URL"
                     />
                     <button
                       type="button"
@@ -394,7 +395,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
-                      Xóa
+                      Delete
                     </button>
                   </div>
                 ))}
@@ -406,7 +407,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
                   </svg>
-                  Thêm URL Hình Ảnh Mới
+                  Add New Image URL
                 </button>
               </div>
             </div>
@@ -415,14 +416,14 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
             {formData.images.length > 0 && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Xem Trước Hình Ảnh
+                  Image Preview
                 </label>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {formData.images.map((url, index) => (
                     <div key={index} className="relative aspect-square">
                       <img
                         src={url}
-                        alt={`Xem trước ${index + 1}`}
+                        alt={`Preview ${index + 1}`}
                         className="w-full h-full object-cover rounded-lg"
                       />
                     </div>
@@ -443,7 +444,7 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
           </svg>
-          Hủy
+          Cancel
         </button>
         <button
           type="submit"
@@ -456,14 +457,14 @@ export default function ProductForm({ product, categories }: ProductFormProps) {
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Đang Lưu...
+              Saving...
             </>
           ) : (
             <>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              {product ? 'Cập Nhật Sản Phẩm' : 'Tạo Sản Phẩm'}
+              {product ? 'Update Product' : 'Create Product'}
             </>
           )}
         </button>

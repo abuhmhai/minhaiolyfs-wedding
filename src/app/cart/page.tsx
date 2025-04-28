@@ -31,8 +31,8 @@ export default function CartPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Vui lòng đăng nhập để xem giỏ hàng</h2>
-          <Button onClick={() => router.push('/login')}>Đăng nhập</Button>
+          <h2 className="text-2xl font-bold mb-4">Please login to view your cart</h2>
+          <Button onClick={() => router.push('/login')}>Login</Button>
         </div>
       </div>
     );
@@ -78,8 +78,8 @@ export default function CartPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Giỏ hàng của bạn đang trống</h2>
-          <Button onClick={() => router.push('/collections')}>Tiếp tục mua sắm</Button>
+          <h2 className="text-2xl font-bold mb-4">Your cart is empty</h2>
+          <Button onClick={() => router.push('/collections')}>Continue Shopping</Button>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function CartPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Giỏ hàng của bạn</h1>
+        <h1 className="text-3xl font-bold">Your Cart</h1>
         <Button 
           variant="outline" 
           onClick={() => router.push('/collections')}
@@ -97,7 +97,7 @@ export default function CartPage() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M15 18l-6-6 6-6"/>
           </svg>
-          Tiếp tục mua sắm
+          Continue Shopping
         </Button>
       </div>
 
@@ -147,14 +147,14 @@ export default function CartPage() {
                           <line x1="9" y1="9" x2="9.01" y2="9"/>
                           <line x1="15" y1="9" x2="15.01" y2="9"/>
                         </svg>
-                        <span>Màu sắc: {item.color}</span>
+                        <span>Color: {item.color}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
                           <line x1="7" y1="7" x2="7.01" y2="7"/>
                         </svg>
-                        <span>Kiểu dáng: {item.style}</span>
+                        <span>Style: {item.style}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -162,7 +162,7 @@ export default function CartPage() {
                           <line x1="3" y1="9" x2="21" y2="9"/>
                           <line x1="9" y1="21" x2="9" y2="9"/>
                         </svg>
-                        <span>Loại: {item.type}</span>
+                        <span>Type: {item.type}</span>
                       </div>
                       {item.size && (
                         <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export default function CartPage() {
                           <line x1="8" y1="2" x2="8" y2="6"/>
                           <line x1="3" y1="10" x2="21" y2="10"/>
                         </svg>
-                        <span>Thời gian thuê: {new Date(item.rentalStartDate).toLocaleDateString('vi-VN')} - {new Date(item.rentalEndDate).toLocaleDateString('vi-VN')}</span>
+                        <span>Rental Period: {new Date(item.rentalStartDate).toLocaleDateString('vi-VN')} - {new Date(item.rentalEndDate).toLocaleDateString('vi-VN')}</span>
                       </div>
                     </div>
                     <div className="mt-4 flex items-center gap-4">
@@ -205,7 +205,7 @@ export default function CartPage() {
                         </Button>
                       </div>
                       {item.quantity >= item.product.stockQuantity && (
-                        <span className="text-sm text-red-500">Đã đạt giới hạn số lượng</span>
+                        <span className="text-sm text-red-500">Maximum quantity reached</span>
                       )}
                     </div>
                   </div>
@@ -217,7 +217,7 @@ export default function CartPage() {
 
         <Card className="sticky bottom-0 bg-white shadow-lg border-t-2 border-amber-800">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xl">Tổng đơn hàng</CardTitle>
+            <CardTitle className="text-xl">Order Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -232,16 +232,16 @@ export default function CartPage() {
             </div>
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between">
-                <span>Tạm tính</span>
+                <span>Subtotal</span>
                 <span className="font-medium">{subtotal.toLocaleString('vi-VN')}₫</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Phí vận chuyển</span>
-                <span>Miễn phí</span>
+                <span>Shipping</span>
+                <span>Free</span>
               </div>
               <div className="border-t pt-2">
                 <div className="flex justify-between font-semibold text-lg text-amber-800">
-                  <span>Tổng cộng</span>
+                  <span>Total</span>
                   <span>{total.toLocaleString('vi-VN')}₫</span>
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default function CartPage() {
               className="w-full bg-amber-800 hover:bg-amber-900 text-white py-6 text-lg font-medium" 
               onClick={() => router.push('/checkout')}
             >
-              Tiến hành thanh toán
+              Proceed to Checkout
             </Button>
           </CardContent>
         </Card>

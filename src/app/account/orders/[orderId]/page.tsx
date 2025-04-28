@@ -43,7 +43,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
         setOrders(data);
       } catch (error) {
         console.error('Error fetching orders:', error);
-        toast.error('Không thể tải danh sách đơn hàng');
+        toast.error('Cannot load order list');
       }
     };
 
@@ -61,7 +61,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
         setOrder(data);
       } catch (error) {
         console.error('Error fetching order:', error);
-        toast.error('Không thể tải thông tin đơn hàng');
+        toast.error('Cannot load order information');
       } finally {
         setLoading(false);
       }
@@ -89,12 +89,12 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Không tìm thấy đơn hàng</h1>
+          <h1 className="text-2xl font-bold mb-4">Order not found</h1>
           <button
             onClick={() => router.push('/account/orders')}
             className="text-blue-600 hover:underline"
           >
-            Quay lại danh sách đơn hàng
+            Back to orders list
           </button>
         </div>
       </div>
@@ -105,15 +105,15 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Chi tiết đơn hàng #{order.id}</h1>
+          <h1 className="text-2xl font-bold">Order Details #{order.id}</h1>
           <Select value={orderId} onValueChange={handleOrderChange}>
             <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Chọn đơn hàng" />
+              <SelectValue placeholder="Select order" />
             </SelectTrigger>
             <SelectContent>
               {orders.map((order) => (
                 <SelectItem key={order.id} value={order.id.toString()}>
-                  Đơn hàng #{order.id} - {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                  Order #{order.id} - {new Date(order.createdAt).toLocaleDateString('vi-VN')}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -124,7 +124,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
           {/* Order Items */}
           <Card>
             <CardHeader>
-              <CardTitle>Sản phẩm đã đặt</CardTitle>
+              <CardTitle>Ordered Items</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -153,11 +153,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
                           <span className="font-medium">Size:</span> {item.size}
                         </p>
                         <p className="text-sm">
-                          <span className="font-medium">Số lượng:</span> {item.quantity}
+                          <span className="font-medium">Quantity:</span> {item.quantity}
                         </p>
                         {item.rentalDuration && (
                           <p className="text-sm">
-                            <span className="font-medium">Thời gian thuê:</span> {item.rentalDuration.name}
+                            <span className="font-medium">Rental Duration:</span> {item.rentalDuration.name}
                           </p>
                         )}
                         <p className="text-lg font-medium text-primary mt-2">
@@ -169,7 +169,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
                 ))}
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-lg">
-                    <span>Tổng cộng:</span>
+                    <span>Total:</span>
                     <span className="text-primary">{order.total.toLocaleString('vi-VN')}đ</span>
                   </div>
                 </div>
@@ -180,44 +180,44 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
           {/* Shipping Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Thông tin đơn hàng</CardTitle>
+              <CardTitle>Order Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-lg mb-3">Trạng thái đơn hàng</h3>
+                  <h3 className="font-medium text-lg mb-3">Order Status</h3>
                   <div className={`inline-flex items-center px-3 py-1 rounded-full ${
                     order.status === 'DELIVERED' 
                       ? 'bg-green-100 text-green-800' 
                       : 'bg-blue-100 text-blue-800'
                   }`}>
-                    {order.status === 'DELIVERED' ? 'Đã giao hàng' : order.status}
+                    {order.status === 'DELIVERED' ? 'Delivered' : order.status}
                   </div>
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-lg mb-3">Thông tin giao hàng</h3>
+                  <h3 className="font-medium text-lg mb-3">Shipping Information</h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-gray-500">Người nhận</p>
-                      <p className="font-medium">{order.fullName || 'Chưa có thông tin'}</p>
+                      <p className="text-sm text-gray-500">Recipient</p>
+                      <p className="font-medium">{order.user?.fullName || 'No information'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Số điện thoại</p>
-                      <p className="font-medium">{order.phone || 'Chưa có thông tin'}</p>
+                      <p className="text-sm text-gray-500">Phone Number</p>
+                      <p className="font-medium">{order.user?.phone || 'No information'}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Địa chỉ giao hàng</p>
-                      <p className="font-medium">{order.address || 'Chưa có thông tin'}</p>
+                      <p className="text-sm text-gray-500">Shipping Address</p>
+                      <p className="font-medium">{order.user?.address || 'No information'}</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-lg mb-3">Thông tin đặt hàng</h3>
+                  <h3 className="font-medium text-lg mb-3">Order Details</h3>
                   <div className="space-y-3">
                     <div>
-                      <p className="text-sm text-gray-500">Ngày đặt hàng</p>
+                      <p className="text-sm text-gray-500">Order Date</p>
                       <p className="font-medium">
                         {new Date(order.createdAt).toLocaleDateString('vi-VN', {
                           day: 'numeric',
@@ -230,7 +230,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<PageParam
                     </div>
                     {order.note && (
                       <div>
-                        <p className="text-sm text-gray-500">Ghi chú</p>
+                        <p className="text-sm text-gray-500">Notes</p>
                         <p className="font-medium">{order.note}</p>
                       </div>
                     )}

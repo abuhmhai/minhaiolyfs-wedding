@@ -144,19 +144,19 @@ export default function CheckoutPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Thanh toán</h1>
+      <h1 className="text-2xl font-bold mb-6">Checkout</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Order Summary */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Đơn hàng của bạn</h2>
+          <h2 className="text-lg font-semibold mb-4">Your Order</h2>
           <div className="space-y-4">
             {items.map((item) => (
               <div key={item.product.id} className="flex items-center justify-between">
                 <div>
                   <p className="font-medium">{item.product.name}</p>
                   <p className="text-sm text-gray-500">
-                    Size: {item.size} - Số lượng: {item.quantity}
+                    Size: {item.size} - Quantity: {item.quantity}
                   </p>
                 </div>
                 <p className="font-medium">
@@ -166,7 +166,7 @@ export default function CheckoutPage() {
             ))}
             <div className="border-t pt-4">
               <div className="flex justify-between font-bold">
-                <span>Tổng cộng:</span>
+                <span>Total:</span>
                 <span>
                   {items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0).toLocaleString('vi-VN')}đ
                 </span>
@@ -177,10 +177,10 @@ export default function CheckoutPage() {
 
         {/* Checkout Form */}
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Thông tin giao hàng</h2>
+          <h2 className="text-lg font-semibold mb-4">Shipping Information</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Họ và tên</label>
+              <label className="block text-sm font-medium mb-1">Full Name</label>
               <Input
                 name="fullName"
                 value={formData.fullName}
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Số điện thoại</label>
+              <label className="block text-sm font-medium mb-1">Phone Number</label>
               <Input
                 name="phone"
                 value={formData.phone}
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Địa chỉ</label>
+              <label className="block text-sm font-medium mb-1">Address</label>
               <Textarea
                 name="address"
                 value={formData.address}
@@ -215,7 +215,7 @@ export default function CheckoutPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Ghi chú</label>
+              <label className="block text-sm font-medium mb-1">Notes</label>
               <Textarea
                 name="note"
                 value={formData.note}
@@ -227,7 +227,7 @@ export default function CheckoutPage() {
               className="w-full"
               disabled={loading}
             >
-              {loading ? 'Đang xử lý...' : 'Thanh toán với MoMo'}
+              {loading ? 'Processing...' : 'Pay with MoMo'}
             </Button>
           </form>
         </div>

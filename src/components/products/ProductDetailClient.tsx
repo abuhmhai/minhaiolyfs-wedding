@@ -41,22 +41,22 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const handleAddToCart = async () => {
     if (isWeddingDress && !rentalStartDate) {
-      toast.error('Vui lòng chọn ngày thuê');
+      toast.error('Please select rental date');
       return;
     }
 
     if (product.stockQuantity < quantity) {
-      toast.error('Số lượng sản phẩm không đủ');
+      toast.error('Insufficient product quantity');
       return;
     }
 
     if (!selectedColor) {
-      toast.error('Vui lòng chọn màu sắc');
+      toast.error('Please select color');
       return;
     }
 
     if (isWeddingDress && !selectedStyle) {
-      toast.error('Vui lòng chọn kiểu dáng');
+      toast.error('Please select style');
       return;
     }
 
@@ -84,16 +84,16 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       };
 
       await addItem(cartItem);
-      toast.success('Đã thêm vào giỏ hàng');
+      toast.success('Added to cart');
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes('login')) {
-          toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
+          toast.error('Please log in to add product to cart');
         } else {
-          toast.error(error.message || 'Không thể thêm sản phẩm vào giỏ hàng');
+          toast.error(error.message || 'Unable to add product to cart');
         }
       } else {
-        toast.error('Không thể thêm sản phẩm vào giỏ hàng');
+        toast.error('Unable to add product to cart');
       }
     }
   };
@@ -147,14 +147,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
               <Link href="/" className="text-gray-700 hover:text-gray-900">
-                Trang chủ
+                Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 <Link href="/collections" className="text-gray-700 hover:text-gray-900">
-                  Danh mục
+                  Category
                 </Link>
               </div>
             </li>
@@ -162,7 +162,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
                 <Link href="/collections/ao-dai-co-dau" className="text-gray-700 hover:text-gray-900">
-                  Áo dài
+                  Ao Dai
                 </Link>
               </div>
             </li>
@@ -219,10 +219,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             {/* Stock status */}
             <div className="flex items-center gap-2">
               {isOutOfStock ? (
-                <span className="text-red-600 font-medium">Hết hàng</span>
+                <span className="text-red-600 font-medium">Out of stock</span>
               ) : isLowStock ? (
                 <span className="text-amber-600 font-medium">
-                  Sắp hết hàng (Còn {product.stockQuantity} sản phẩm)
+                  Low stock (Only {product.stockQuantity} items left)
                 </span>
               ) : null}
             </div>
@@ -237,14 +237,14 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
             {rentalStartDate && (
               <div className="text-sm text-gray-600">
-                Ngày thuê: {rentalStartDate.toLocaleDateString('vi-VN')}
+                Rental date: {rentalStartDate.toLocaleDateString('en-US')}
               </div>
             )}
 
             <div className="space-y-4">
               {isWeddingDress && (
                 <div>
-                  <p className="text-sm font-medium mb-2">Kiểu dáng</p>
+                  <p className="text-sm font-medium mb-2">Style</p>
                   <div className="flex flex-wrap gap-2">
                     <button 
                       type="button"
@@ -284,7 +284,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
               )}
 
               <div>
-                <p className="text-sm font-medium mb-2">Màu sắc</p>
+                <p className="text-sm font-medium mb-2">Color</p>
                 <div className="flex flex-wrap gap-2">
                   {isWeddingDress ? (
                     <>
@@ -387,7 +387,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
             <div className="flex items-center gap-4">
               <label htmlFor="quantity" className="block text-sm font-medium text-gray-700">
-                Số lượng
+                Quantity
               </label>
               <input
                 type="number"
@@ -410,16 +410,12 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                   !selectedColor || 
                   (isWeddingDress && !selectedStyle)}
               >
-                THÊM VÀO GIỎ HÀNG
+                ADD TO CART
               </Button>
               <Button variant="outline" className="flex-1 px-6 py-2.5 border-amber-800 text-amber-800 hover:bg-amber-50 rounded-md transition-colors">
-                LIÊN HỆ QUA HOTLINE
+                CONTACT US
               </Button>
             </div>
-
-            <Button variant="outline" className="w-full py-2.5 border-amber-800 text-amber-800 hover:bg-amber-50 rounded-md">
-              REVIEW TỪ KHÁCH HÀNG
-            </Button>
 
             {/* Share buttons */}
             <div className="pt-4">
@@ -453,37 +449,37 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       <div className="mt-16">
         <Tabs defaultValue="description">
           <TabsList className="w-full border-b border-gray-200 mb-6">
-            <TabsTrigger value="description" className="px-6 py-2">Mô tả sản phẩm</TabsTrigger>
-            <TabsTrigger value="sizing" className="px-6 py-2">Hướng dẫn chọn size</TabsTrigger>
+            <TabsTrigger value="description" className="px-6 py-2">Product Description</TabsTrigger>
+            <TabsTrigger value="sizing" className="px-6 py-2">Size Guide</TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="px-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
                 <p className="mb-4">{product.description}</p>
-                <p className="mb-4 font-medium">Thông tin chi tiết:</p>
+                <p className="mb-4 font-medium">Detailed Information:</p>
                 <ul className="space-y-2">
-                  <li><span className="font-medium">Giá thuê váy:</span> {product.price.toLocaleString('vi-VN')}₫</li>
-                  <li><span className="font-medium">Giá bán váy có sẵn:</span> VND</li>
-                  <li><span className="font-medium">Giá may:</span> VND</li>
+                  <li><span className="font-medium">Rental price:</span> {product.price.toLocaleString('en-US')}₫</li>
+                  <li><span className="font-medium">Ready-to-wear price:</span> VND</li>
+                  <li><span className="font-medium">Custom-made price:</span> VND</li>
                 </ul>
 
                 <div className="mt-6">
-                  <p className="mb-2 font-medium">Thông số sản phẩm:</p>
+                  <p className="mb-2 font-medium">Product Specifications:</p>
                   <table className="w-full border-collapse">
                     <tbody>
                       <tr className="border-b border-gray-200">
-                        <td className="py-2 pr-4 font-medium">Kiểu dáng</td>
-                        <td className="py-2">{product.style || 'Chưa cập nhật'}</td>
+                        <td className="py-2 pr-4 font-medium">Style</td>
+                        <td className="py-2">{product.style || 'Not available'}</td>
                       </tr>
                       <tr className="border-b border-gray-200">
-                        <td className="py-2 pr-4 font-medium">Màu sắc</td>
-                        <td className="py-2">{product.color || 'Chưa cập nhật'}</td>
+                        <td className="py-2 pr-4 font-medium">Color</td>
+                        <td className="py-2">{product.color || 'Not available'}</td>
                       </tr>
                       {Object.entries(productDetails).map(([key, value]) => {
                         if (key !== 'style' && key !== 'color') {
                           return (
                             <tr key={key} className="border-b border-gray-200">
-                              <td className="py-2 pr-4 font-medium capitalize">{key === 'trainLength' ? 'Chiều dài đuôi' : key === 'suitableFor' ? 'Phù hợp sử dụng' : key}</td>
+                              <td className="py-2 pr-4 font-medium capitalize">{key === 'trainLength' ? 'Tail Length' : key === 'suitableFor' ? 'Suitable For' : key}</td>
                               <td className="py-2">{value}</td>
                             </tr>
                           );
@@ -495,44 +491,44 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
                 </div>
               </div>
               <div>
-                <p className="mb-4 font-medium">Lưu ý:</p>
-                <p className="mb-4"><strong>Trong trường hợp mua váy có sẵn</strong></p>
+                <p className="mb-4 font-medium">Note:</p>
+                <p className="mb-4"><strong>For ready-to-wear dresses</strong></p>
                 <ul className="list-disc pl-5 space-y-2 mb-6">
-                  <li>NHUNGTRANG có thể hỗ trợ khách điều chỉnh số đo nhỏ lên lai, bóp eo...(áp dụng với các sản phẩm có thể điều chỉnh được)</li>
-                  <li>Thời gian hoàn tất: 15 -20 ngày kể từ ngày NHUNGTRANG xác nhận đơn hàng. Trong trường hợp khách hàng cần gấp hơn, vui lòng báo cho bộ phận tư vấn để ưu tiên sắp xếp đơn hàng</li>
-                  <li>Giá bán không bao gồm phụ kiện nếu có (veil, bao tay, trang sức...)</li>
+                  <li>NHUNGTRANG can assist with minor adjustments like hemming, waist tightening...(applicable to adjustable products)</li>
+                  <li>Completion time: 15-20 days from NHUNGTRANG's order confirmation. For urgent orders, please inform our consultants for priority arrangement</li>
+                  <li>Price does not include accessories if any (veil, gloves, jewelry...)</li>
                 </ul>
-                <p className="mb-4"><strong>Trong trường hợp thuê váy:</strong> Thời gian giữ váy trong 1 lần thuê là 3 ngày.</p>
-                <p className="mb-4"><strong>Trong trường hợp may mới theo số đo:</strong> nếu có điều chỉnh 1 số chi tiết, phụ thu thêm từ 500,000 - 2,000,000 so với giá may.</p>
+                <p className="mb-4"><strong>For dress rental:</strong> Rental duration is 3 days per rental.</p>
+                <p className="mb-4"><strong>For custom-made dresses:</strong> Additional charges from 500,000 - 2,000,000 VND for any adjustments to the original design.</p>
               </div>
             </div>
           </TabsContent>
           <TabsContent value="sizing" className="px-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-lg font-medium mb-4">Hướng dẫn chọn size váy cưới</h3>
-                <p className="mb-4">Để chiếc áo được may vừa vặn với cơ thể bạn, bạn nên lưu ý những yếu tố sau:</p>
+                <h3 className="text-lg font-medium mb-4">Size Guide</h3>
+                <p className="mb-4">To ensure the dress fits your body, please consider the following factors:</p>
                 <ul className="list-disc pl-5 space-y-2 mb-6">
-                  <li>Khi đo vòng ngực, nên mặc áo ngực và tay phải thả lỏng.</li>
-                  <li>Khi đo vòng eo, phải đo nơi nhỏ nhất của vòng eo (thường nằm trên rốn 2.5 cm).</li>
-                  <li>Khi đo vòng mông phải đo phần cao nhất của vòng mông, với thước bám sát xương hông.</li>
+                  <li>When measuring the bust, make sure to wear a tight-fitting bra.</li>
+                  <li>When measuring the waist, measure the smallest part of the waist (usually around the waist 2.5 cm).</li>
+                  <li>When measuring the hips, measure the highest part of the hips, with the tape sticking to the hip bone.</li>
                 </ul>
-                <p className="mb-4">Đối với các loại áo có cổ thì phải đo thêm vòng cổ.</p>
-                <p>Ngoài ra lưu ý cung cấp thêm những thông tin sau đây:</p>
+                <p className="mb-4">For dresses with a collar, an additional collar measurement is required.</p>
+                <p>Also, please provide the following additional information:</p>
                 <ul className="list-disc pl-5 space-y-2 mb-6">
-                  <li>Chiều dài của áo, đuôi áo dài bao nhiêu, độ phồng, độ dài, có tùng hay không tùng</li>
-                  <li>Cung cấp chiều cao của đôi giày bạn muốn mang.</li>
+                  <li>Dress length, tail length, fullness, length, with or without lining</li>
+                  <li>Provide the height of your shoe size.</li>
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-medium mb-4">Bảng size chuẩn</h3>
+                <h3 className="text-lg font-medium mb-4">Standard Size Table</h3>
                 <table className="w-full border-collapse border border-gray-300">
                   <thead>
                     <tr className="bg-gray-100">
                       <th className="border border-gray-300 px-4 py-2">Size</th>
-                      <th className="border border-gray-300 px-4 py-2">Vòng ngực (cm)</th>
-                      <th className="border border-gray-300 px-4 py-2">Vòng eo (cm)</th>
-                      <th className="border border-gray-300 px-4 py-2">Vòng mông (cm)</th>
+                      <th className="border border-gray-300 px-4 py-2">Bust (cm)</th>
+                      <th className="border border-gray-300 px-4 py-2">Waist (cm)</th>
+                      <th className="border border-gray-300 px-4 py-2">Hips (cm)</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -576,7 +572,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
       {/* Related products */}
       <div className="mt-16">
-        <h2 className="text-2xl font-light text-center mb-8">Sản phẩm liên quan</h2>
+        <h2 className="text-2xl font-light text-center mb-8">Related Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {relatedProducts.map((product) => (
             <Link href={`/products/${product.slug}`} key={product.id} className="group">
@@ -599,4 +595,4 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
       </div>
     </div>
   );
-} 
+}

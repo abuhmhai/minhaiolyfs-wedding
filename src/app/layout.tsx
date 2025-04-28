@@ -9,7 +9,7 @@ import ClientBody from '@/components/client/ClientBody';
 
 export const metadata: Metadata = {
   title: 'Wedding Dress Rental',
-  description: 'Rent beautiful wedding dresses and áo dài for your special day',
+  description: 'Rent beautiful wedding dresses and traditional Vietnamese dresses for your special day',
 };
 
 export default function RootLayout({

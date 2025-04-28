@@ -76,16 +76,16 @@ export default function AdminOrdersPage() {
 
   const getStatusText = (status: OrderStatus) => {
     switch (status) {
-      case 'PENDING':
-        return 'Chờ xử lý';
-      case 'PROCESSING':
-        return 'Đang xử lý';
-      case 'SHIPPED':
-        return 'Đã giao hàng';
-      case 'DELIVERED':
-        return 'Đã nhận hàng';
-      case 'CANCELLED':
-        return 'Đã hủy';
+      case OrderStatus.PENDING:
+        return 'Pending';
+      case OrderStatus.PROCESSING:
+        return 'Processing';
+      case OrderStatus.SHIPPED:
+        return 'Shipped';
+      case OrderStatus.DELIVERED:
+        return 'Delivered';
+      case OrderStatus.CANCELLED:
+        return 'Cancelled';
       default:
         return status;
     }

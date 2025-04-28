@@ -168,10 +168,10 @@ async function main() {
   console.log('Creating traditional dresses...');
   const traditionalDresses = [
     {
-      name: 'THIÊN HƯƠNG - VLTX-1001 LUXURY ÁO DÀI CÔ DÂU ĐỎ THÊU HOA',
-      description: 'Áo dài cô dâu cao cấp màu đỏ với họa tiết thêu hoa tinh tế, phù hợp cho ngày vu quy.',
+      name: 'THIEN HUONG - VLTX-1001 LUXURY BRIDAL AO DAI RED WITH EMBROIDERED FLOWERS',
+      description: 'High-end red bridal ao dai with delicate embroidered flower patterns, perfect for the wedding day.',
       price: 15000000,
-      color: 'do',
+      color: 'red',
       stockQuantity: 5,
       categoryId: aoDaiCoDau.id,
       status: ProductStatus.IN_STOCK,
@@ -182,10 +182,10 @@ async function main() {
       }
     },
     {
-      name: 'NGỌC LAN - VPFA-1002 PREMIUM ÁO DÀI CÔ DÂU HỒNG THÊU RỒNG PHƯỢNG',
-      description: 'Áo dài cô dâu cao cấp màu hồng với họa tiết thêu rồng phượng truyền thống.',
+      name: 'NGOC LAN - VPFA-1002 PREMIUM BRIDAL AO DAI PINK WITH DRAGON PHOENIX EMBROIDERY',
+      description: 'High-end pink bridal ao dai with traditional dragon phoenix embroidery patterns.',
       price: 17000000,
-      color: 'hong',
+      color: 'pink',
       stockQuantity: 5,
       categoryId: aoDaiCoDau.id,
       status: ProductStatus.IN_STOCK,
@@ -196,10 +196,10 @@ async function main() {
       }
     },
     {
-      name: 'KIỀU CHÂU - ÁO DÀI CÔ DÂU ADCD - 224',
-      description: 'Áo dài cô dâu truyền thống màu trắng tinh khôi, thiết kế đơn giản thanh lịch.',
+      name: 'KIEU CHAU - BRIDAL AO DAI ADCD - 224',
+      description: 'Traditional white bridal ao dai, simple and elegant design.',
       price: 4500000,
-      color: 'trang',
+      color: 'white',
       stockQuantity: 5,
       categoryId: aoDaiCoDau.id,
       status: ProductStatus.IN_STOCK,

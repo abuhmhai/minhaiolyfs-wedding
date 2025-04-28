@@ -33,10 +33,10 @@ export default function LoginPage() {
         setUser(data.user);
         router.push('/');
       } else {
-        setError(data.message || 'Đăng nhập thất bại');
+        setError(data.message || 'Login failed');
       }
     } catch (err) {
-      setError('Có lỗi xảy ra, vui lòng thử lại');
+      setError('An error occurred, please try again');
     }
   };
 
@@ -44,9 +44,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Đăng nhập</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
           <CardDescription className="text-center">
-            Đăng nhập vào tài khoản của bạn
+            Login to your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -66,12 +66,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Nhập email của bạn"
+                placeholder="Enter your email"
               />
             </div>
             <div className="space-y-2">
               <label htmlFor="password" className="text-sm font-medium">
-                Mật khẩu
+                Password
               </label>
               <Input
                 id="password"
@@ -79,18 +79,18 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="Nhập mật khẩu của bạn"
+                placeholder="Enter your password"
               />
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full">
-              Đăng nhập
+              Login
             </Button>
             <p className="text-center text-sm text-gray-600">
-              Chưa có tài khoản?{' '}
+              Don't have an account?{' '}
               <Link href="/account/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Đăng ký
+                Register
               </Link>
             </p>
           </CardFooter>

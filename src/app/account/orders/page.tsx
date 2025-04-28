@@ -51,15 +51,15 @@ const getStatusColor = (status: OrderStatus) => {
 const getStatusText = (status: OrderStatus) => {
   switch (status) {
     case OrderStatus.PENDING:
-      return 'Chờ xử lý';
+      return 'Pending';
     case OrderStatus.PROCESSING:
-      return 'Đang xử lý';
+      return 'Processing';
     case OrderStatus.SHIPPED:
-      return 'Đang giao hàng';
+      return 'Shipping';
     case OrderStatus.DELIVERED:
-      return 'Đã giao hàng';
+      return 'Delivered';
     case OrderStatus.CANCELLED:
-      return 'Đã hủy';
+      return 'Cancelled';
     default:
       return status;
   }
@@ -120,12 +120,12 @@ export default function OrdersPage() {
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-center">Lỗi</CardTitle>
+              <CardTitle className="text-2xl font-bold text-center">Error</CardTitle>
             </CardHeader>
             <CardContent className="text-center py-8">
               <p className="text-red-600 mb-4">{error}</p>
               <Button onClick={() => window.location.reload()}>
-                Thử lại
+                Try Again
               </Button>
             </CardContent>
           </Card>
@@ -140,13 +140,13 @@ export default function OrdersPage() {
         <div className="max-w-4xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-center">Đơn hàng của tôi</CardTitle>
+              <CardTitle className="text-2xl font-bold text-center">My Orders</CardTitle>
             </CardHeader>
             <CardContent className="text-center py-8">
               <ShoppingCart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <p className="text-gray-600 mb-4">Bạn chưa có đơn hàng nào</p>
+              <p className="text-gray-600 mb-4">You don't have any orders yet</p>
               <Button asChild>
-                <Link href="/collections">Tiếp tục mua sắm</Link>
+                <Link href="/collections">Continue Shopping</Link>
               </Button>
             </CardContent>
           </Card>
@@ -158,17 +158,17 @@ export default function OrdersPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">Đơn hàng của tôi</h1>
+        <h1 className="text-2xl font-bold mb-6">My Orders</h1>
         <div className="space-y-4">
           {orders.map((order) => (
             <Card key={order.id}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                   <CardTitle className="text-lg">
-                    Đơn hàng #{order.id}
+                    Order #{order.id}
                   </CardTitle>
                   <p className="text-sm text-gray-500">
-                    Ngày đặt: {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
+                    Order Date: {format(new Date(order.createdAt), 'dd/MM/yyyy HH:mm', { locale: vi })}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -177,7 +177,7 @@ export default function OrdersPage() {
                   </span>
                   <Button variant="outline" size="sm" asChild>
                     <Link href={`/account/orders/${order.id}`}>
-                      Xem chi tiết
+                      View Details
                     </Link>
                   </Button>
                 </div>
@@ -199,7 +199,7 @@ export default function OrdersPage() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium truncate">{item.product.name}</h3>
                         <p className="text-sm text-gray-500">
-                          Số lượng: {item.quantity}
+                          Quantity: {item.quantity}
                         </p>
                       </div>
                       <div className="text-right">
@@ -211,7 +211,7 @@ export default function OrdersPage() {
                   ))}
                   <div className="border-t pt-4">
                     <div className="flex justify-between font-bold">
-                      <span>Tổng cộng:</span>
+                      <span>Total:</span>
                       <span>{order.total.toLocaleString('vi-VN')}đ</span>
                     </div>
                   </div>

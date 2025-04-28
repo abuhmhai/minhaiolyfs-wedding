@@ -3,58 +3,58 @@ import Image from "next/image"
 import { Star } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Cảm Nhận | Cho Thuê Đồ Cưới",
-  description: "Đọc những chia sẻ từ các cặp đôi hạnh phúc về trải nghiệm thuê đồ cưới của họ.",
+  title: "Testimonials | Wedding Dress Rental",
+  description: "Read the experiences of happy couples about their wedding dress rental experience.",
 }
 
 const testimonials = [
   {
     id: 1,
     name: "Sarah & Michael",
-    date: "Tháng 3, 2024",
+    date: "March, 2024",
     image: "/testimonials/couple1.png",
     rating: 5,
-    content: "Chất lượng đồ thuê vượt xa mong đợi của chúng tôi. Mọi thứ đều trong tình trạng hoàn hảo và đội ngũ nhân viên vô cùng nhiệt tình trong suốt quá trình. Ngày cưới của chúng tôi thật sự kỳ diệu nhờ những món đồ xinh đẹp này.",
+    content: "The quality of the rental items exceeded our expectations. Everything was in perfect condition and the staff was extremely helpful throughout the process. Our wedding day was truly magical thanks to these beautiful items.",
   },
   {
     id: 2,
     name: "Jessica & David",
-    date: "Tháng 2, 2024",
+    date: "February, 2024",
     image: "/testimonials/couple2.png",
     rating: 5,
-    content: "Chúng tôi hoàn toàn bị ấn tượng bởi sự đa dạng và quy trình thuê đồ dễ dàng. Đội ngũ nhân viên đã vượt xa mong đợi để đảm bảo chúng tôi có mọi thứ cần thiết. Những món đồ cổ điển đã tạo nên điểm nhấn đặc biệt cho trang trí đám cưới của chúng tôi.",
+    content: "We were completely impressed by the variety and easy rental process. The staff went above and beyond to ensure we had everything we needed. The classic items added a special touch to our wedding decoration.",
   },
   {
     id: 3,
     name: "Emily & James",
-    date: "Tháng 1, 2024",
+    date: "January, 2024",
     image: "/testimonials/couple3.png",
     rating: 5,
-    content: "Thuê đồ trang trí đám cưới là quyết định tốt nhất chúng tôi đã thực hiện. Chất lượng tuyệt vời và giá cả rất hợp lý. Đội ngũ nhân viên chuyên nghiệp và giúp toàn bộ quá trình trở nên dễ dàng.",
+    content: "Renting wedding decorations was the best decision we made. The quality was excellent and the prices were very reasonable. The staff was professional and made the entire process easy.",
   },
   {
     id: 4,
     name: "Amanda & Craig",
-    date: "Tháng 4, 2024",
+    date: "April, 2024",
     image: "/testimonials/couple4.jpg",
     rating: 5,
-    content: "Chúng tôi đã tìm thấy mọi thứ chúng tôi cần cho ngày cưới của mình. Dịch vụ thuê đồ thật sự tuyệt vời và giúp chúng tôi tiết kiệm được rất nhiều chi phí. Cảm ơn đội ngũ đã giúp ngày trọng đại của chúng tôi thêm phần hoàn hảo.",
+    content: "We found everything we needed for our wedding day. The rental service was truly amazing and helped us save a lot of costs. Thank you to the team for making our special day even more perfect.",
   },
   {
     id: 5,
-    name: "Pháp & Hải",
-    date: "Tháng 4, 2025",
+    name: "Phap & Hai",
+    date: "April, 2025",
     image: "/testimonials/couple5.png",
     rating: 5,
-    content: "Chúng tôi rất hài lòng với dịch vụ thuê đồ cưới. Mọi thứ đều được chuẩn bị chu đáo và đúng hẹn. Đội ngũ tư vấn nhiệt tình giúp chúng tôi lựa chọn được những món đồ phù hợp với phong cách đám cưới. Ngày cưới của chúng tôi thật sự đáng nhớ!",
+    content: "We are very satisfied with the wedding dress rental service. Everything was well-prepared and on time. The consulting team was enthusiastic in helping us choose items that matched our wedding style. Our wedding day was truly memorable!",
   },
   {
     id: 6,
-    name: "Ninh & Dương",
-    date: "Tháng 1, 2025",
+    name: "Ninh & Duong",
+    date: "January, 2025",
     image: "/testimonials/couple6.png",
     rating: 5,
-    content: "Dịch vụ thuê đồ cưới chất lượng cao với giá cả phải chăng. Chúng tôi đặc biệt ấn tượng với sự đa dạng của các món đồ và sự chuyên nghiệp của đội ngũ nhân viên. Cảm ơn các bạn đã giúp chúng tôi có một đám cưới hoàn hảo!",
+    content: "High-quality wedding dress rental service at reasonable prices. We were particularly impressed with the variety of items and the professionalism of the staff. Thank you for helping us have a perfect wedding!",
   },
 ]
 
@@ -62,9 +62,9 @@ export default function TestimonialsPage() {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">Cảm Nhận Của Các Cặp Đôi</h1>
+        <h1 className="text-4xl font-bold mb-4">Couples' Experiences</h1>
         <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Lắng nghe chia sẻ từ các cặp đôi đã làm cho ngày trọng đại của họ thêm phần ý nghĩa với các món đồ thuê của chúng tôi.
+          Listen to the stories of couples who made their special day more meaningful with our rental items.
         </p>
       </div>
 
@@ -102,9 +102,9 @@ export default function TestimonialsPage() {
       </div>
 
       <div className="mt-16 text-center">
-        <h2 className="text-2xl font-semibold mb-4">Chia Sẻ Trải Nghiệm Của Bạn</h2>
+        <h2 className="text-2xl font-semibold mb-4">Share Your Experience</h2>
         <p className="text-gray-600 mb-6">
-          Chúng tôi rất muốn lắng nghe trải nghiệm của bạn về dịch vụ thuê đồ của chúng tôi.
+          We would love to hear about your experience with our rental service.
         </p>
       </div>
     </div>

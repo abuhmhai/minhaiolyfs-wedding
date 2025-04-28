@@ -38,15 +38,15 @@ const getStatusColor = (status: OrderStatus) => {
 const getStatusText = (status: OrderStatus) => {
   switch (status) {
     case OrderStatus.PENDING:
-      return 'Chờ xử lý';
+      return 'Pending';
     case OrderStatus.PROCESSING:
-      return 'Đang xử lý';
+      return 'Processing';
     case OrderStatus.SHIPPED:
-      return 'Đang giao hàng';
+      return 'Shipping';
     case OrderStatus.DELIVERED:
-      return 'Đã giao hàng';
+      return 'Delivered';
     case OrderStatus.CANCELLED:
-      return 'Đã hủy';
+      return 'Cancelled';
     default:
       return status;
   }
@@ -102,7 +102,7 @@ export default function AdminOrderPage() {
         throw new Error(errorData.error || 'Failed to update order status');
       }
 
-      toast.success('Cập nhật trạng thái đơn hàng thành công');
+      toast.success('Order status updated successfully');
       fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
@@ -124,13 +124,13 @@ export default function AdminOrderPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h2 className="text-red-800 font-medium mb-2">Lỗi</h2>
+          <h2 className="text-red-800 font-medium mb-2">Error</h2>
           <p className="text-red-600">{error}</p>
           <button
             onClick={fetchOrders}
             className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200"
           >
-            Thử lại
+            Try Again
           </button>
         </div>
       </div>
@@ -140,9 +140,9 @@ export default function AdminOrderPage() {
   if (!orders || orders.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Quản lý đơn hàng</h1>
+        <h1 className="text-2xl font-bold mb-6">Order Management</h1>
         <div className="bg-white rounded-lg shadow p-8 text-center">
-          <p className="text-gray-500">Chưa có đơn hàng nào</p>
+          <p className="text-gray-500">No orders yet</p>
         </div>
       </div>
     );
@@ -150,29 +150,29 @@ export default function AdminOrderPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Quản lý đơn hàng</h1>
+      <h1 className="text-2xl font-bold mb-6">Order Management</h1>
       
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Mã đơn hàng
+                Order ID
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Ngày đặt
+                Order Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Sản phẩm
+                Products
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tổng tiền
+                Total
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Trạng thái
+                Status
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Thao tác
+                Actions
               </th>
             </tr>
           </thead>
@@ -204,7 +204,7 @@ export default function AdminOrderPage() {
                         <div>
                           <p className="font-medium">{item.product.name}</p>
                           <p className="text-gray-500 text-xs">
-                            Size: {item.size} - Số lượng: {item.quantity}
+                            Size: {item.size} - Quantity: {item.quantity}
                           </p>
                         </div>
                       </div>
@@ -225,7 +225,7 @@ export default function AdminOrderPage() {
                       onClick={() => updateOrderStatus(order.id, OrderStatus.PROCESSING)}
                       className="text-blue-600 hover:text-blue-900 mr-2"
                     >
-                      Xử lý
+                      Process
                     </button>
                   )}
                   {order.status === OrderStatus.PROCESSING && (
@@ -233,7 +233,7 @@ export default function AdminOrderPage() {
                       onClick={() => updateOrderStatus(order.id, OrderStatus.SHIPPED)}
                       className="text-purple-600 hover:text-purple-900 mr-2"
                     >
-                      Giao hàng
+                      Ship
                     </button>
                   )}
                   {order.status === OrderStatus.SHIPPED && (
@@ -241,7 +241,7 @@ export default function AdminOrderPage() {
                       onClick={() => updateOrderStatus(order.id, OrderStatus.DELIVERED)}
                       className="text-green-600 hover:text-green-900 mr-2"
                     >
-                      Hoàn thành
+                      Complete
                     </button>
                   )}
                   {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.DELIVERED && (
@@ -249,7 +249,7 @@ export default function AdminOrderPage() {
                       onClick={() => updateOrderStatus(order.id, OrderStatus.CANCELLED)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      Hủy
+                      Cancel
                     </button>
                   )}
                 </td>

@@ -62,13 +62,13 @@ const Header = () => {
                 <DropdownMenuItem>
                   <Link href="/account/profile" className="flex items-center w-full">
                     <User className="h-4 w-4 mr-2" />
-                    Thông tin tài khoản
+                    Account Information
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/account/orders" className="flex items-center w-full">
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Đơn hàng của tôi
+                    My Orders
                   </Link>
                 </DropdownMenuItem>
                 {session.user.role === 'admin' && (
@@ -76,13 +76,13 @@ const Header = () => {
                     <DropdownMenuItem>
                       <Link href="/admin/products" className="flex items-center w-full">
                         <ShoppingBag className="h-4 w-4 mr-2" />
-                        Quản lý sản phẩm
+                        Product Management
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link href="/admin/order" className="flex items-center w-full">
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        Quản lý đơn hàng
+                        Order Management
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -90,23 +90,23 @@ const Header = () => {
                 <DropdownMenuItem>
                   <Link href="/cart" className="flex items-center w-full">
                     <ShoppingCart className="h-4 w-4 mr-2" />
-                    Giỏ hàng
+                    Shopping Cart
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                   <LogOut className="h-4 w-4 mr-2" />
-                  Đăng xuất
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <>
               <Link href="/register" className="hover:underline">
-                Đăng ký
+                Register
               </Link>
               <span>|</span>
               <Link href="/login" className="hover:underline">
-                Đăng nhập
+                Login
               </Link>
             </>
           )}
@@ -143,7 +143,7 @@ const Header = () => {
         <div className="hidden md:flex items-center border border-gray-300 rounded-sm max-w-xs relative">
           <Input
             type="text"
-            placeholder="Tìm kiếm..."
+            placeholder="Search..."
             className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-8"
           />
           <Button size="icon" variant="ghost" className="absolute right-0 h-8 w-8">
@@ -173,12 +173,12 @@ const Header = () => {
             </li>
             <li>
               <Link href="/collections/ao-cuoi" className="text-gray-700 hover:text-gray-900">
-                ÁO CƯỚI
+                WEDDING DRESSES
               </Link>
             </li>
             <li>
               <Link href="/collections/ao-dai-co-dau" className="text-gray-700 hover:text-gray-900">
-                ÁO DÀI
+                TRADITIONAL DRESSES
               </Link>
             </li>
             <li>
@@ -228,12 +228,12 @@ const Header = () => {
                     </li>
                     <li>
                       <Link href="/collections/when-the-clasic-meets-contemporary" className="block py-1 text-sm">
-                        When The Clasic Meets Contemporary 2025
+                        When The Classic Meets Contemporary 2025
                       </Link>
                     </li>
                     <li>
                       <Link href="/collections/cham-fall-collection" className="block py-1 text-sm">
-                        Chạm Fall Collection
+                        Touch Fall Collection
                       </Link>
                     </li>
                   </ul>
@@ -244,24 +244,24 @@ const Header = () => {
                   onClick={() => toggleSubmenu('ao-cuoi')}
                   className="flex items-center justify-between w-full text-left py-2 border-b border-gray-200"
                 >
-                  <span>ÁO CƯỚI</span>
+                  <span>WEDDING DRESSES</span>
                   <span>{activeSubmenu === 'ao-cuoi' ? '-' : '+'}</span>
                 </button>
                 {activeSubmenu === 'ao-cuoi' && (
                   <ul className="pl-4 mt-2 space-y-2">
                     <li>
                       <Link href="/pages/bo-suu-tap" className="block py-1 text-sm">
-                        Phân loại
+                        Categories
                       </Link>
                     </li>
                     <li>
                       <Link href="/pages/cac-dong-vay-tai-nhungtrang" className="block py-1 text-sm">
-                        Các dòng váy
+                        Dress Collections
                       </Link>
                     </li>
                     <li>
                       <Link href="/pages/ao-cuoi" className="block py-1 text-sm">
-                        Các mẫu áo cưới
+                        Wedding Dress Styles
                       </Link>
                     </li>
                   </ul>
@@ -279,12 +279,12 @@ const Header = () => {
                   <ul className="pl-4 mt-2 space-y-2">
                     <li>
                       <Link href="/pages/bo-suu-tao-ao-dai-khue-cac-2025" className="block py-1 text-sm">
-                        Bộ sưu tập áo dài
+                        Traditional Dress Collection
                       </Link>
                     </li>
                     <li>
                       <Link href="/collections/ao-dai-co-dau" className="block py-1 text-sm">
-                        Các mẫu áo dài
+                        Traditional Dress Styles
                       </Link>
                     </li>
                   </ul>

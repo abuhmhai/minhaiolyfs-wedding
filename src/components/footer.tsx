@@ -34,70 +34,70 @@ const Footer = () => {
             <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">NHUNGTRANG WEDDING</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <Link href="/" className="hover:text-gray-900">CÔNG TY TNHH NHUNGTRANG STUDIO</Link>
+                <Link href="/" className="hover:text-gray-900">NHUNGTRANG STUDIO COMPANY LIMITED</Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-gray-900">Giấy phép kinh doanh số: 0313365584</Link>
+                <Link href="/" className="hover:text-gray-900">Business License No: 0313365584</Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-gray-900">do sở kế hoạch đầu tư cấp ngày: 23/07/2024</Link>
+                <Link href="/" className="hover:text-gray-900">Issued by: Department of Planning and Investment on: 23/07/2024</Link>
               </li>
               <li>
                 <Link href="/" className="hover:text-gray-900">EMAIL: info@nhungtrangwedding.com</Link>
               </li>
               <li>
-                <Link href="/" className="hover:text-gray-900">ĐỊA CHỈ: HANOI</Link>
+                <Link href="/" className="hover:text-gray-900">ADDRESS: HANOI</Link>
               </li>
             </ul>
           </div>
 
           {/* Column 2 */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">DỊCH VỤ KHÁCH HÀNG</h3>
+            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">CUSTOMER SERVICE</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <Link href="/pages/nhung-cau-hoi-thuong-gap" className="hover:text-gray-900">Những câu hỏi thường gặp</Link>
+                <Link href="/pages/frequently-asked-questions" className="hover:text-gray-900">Frequently Asked Questions</Link>
               </li>
               <li>
-                <Link href="/pages/size-infomation" className="hover:text-gray-900">Hướng dẫn chọn size</Link>
+                <Link href="/pages/size-information" className="hover:text-gray-900">Size Guide</Link>
               </li>
               <li>
                 <Link href="/" className="hover:text-gray-900">Hotline 0938330448</Link>
               </li>
               <li>
-                <Link href="/pages/chinh-sach-bao-hanh" className="hover:text-gray-900">Chính sách bảo hành</Link>
+                <Link href="/pages/warranty-policy" className="hover:text-gray-900">Warranty Policy</Link>
               </li>
             </ul>
           </div>
 
           {/* Column 3 */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">HỖ TRỢ KHÁCH HÀNG</h3>
+            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">CUSTOMER SUPPORT</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <Link href="https://giaycuoi.com.vn/account" className="hover:text-gray-900">Tình trạng đơn hàng</Link>
+                <Link href="https://giaycuoi.com.vn/account" className="hover:text-gray-900">Order Status</Link>
               </li>
               <li>
-                <Link href="/pages/shipping-timing" className="hover:text-gray-900">Chính sách vận chuyển</Link>
+                <Link href="/pages/shipping-policy" className="hover:text-gray-900">Shipping Policy</Link>
               </li>
               <li>
-                <Link href="/pages/returns-exchanges" className="hover:text-gray-900">Quy định đổi trả</Link>
+                <Link href="/pages/return-policy" className="hover:text-gray-900">Return Policy</Link>
               </li>
               <li>
-                <Link href="/pages/chinh-sach-thanh-toan" className="hover:text-gray-900">Chính sách thanh toán</Link>
+                <Link href="/pages/payment-policy" className="hover:text-gray-900">Payment Policy</Link>
               </li>
             </ul>
           </div>
 
           {/* Column 4 */}
           <div>
-            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">ĐIỀU KHOẢN - CHÍNH SÁCH</h3>
+            <h3 className="text-sm font-medium uppercase text-gray-700 mb-4">TERMS & POLICIES</h3>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <Link href="/pages/dieu-khoan-su-dung" className="hover:text-gray-900">Điều khoản sử dụng</Link>
+                <Link href="/pages/terms-of-use" className="hover:text-gray-900">Terms of Use</Link>
               </li>
               <li>
-                <Link href="/pages/chinh-sach-bao-mat" className="hover:text-gray-900">Chính sách bảo mật</Link>
+                <Link href="/pages/privacy-policy" className="hover:text-gray-900">Privacy Policy</Link>
               </li>
             </ul>
           </div>
@@ -109,11 +109,11 @@ const Footer = () => {
         <div className="container mx-auto px-4 text-center text-xs">
           <p className="flex items-center justify-center space-x-2">
             <span>Copyright 2025 NHUNGTRANG WEDDING. All rights reserved |</span>
-            <Link href="/pages/about-us" className="hover:underline">Tầm nhìn của NHUNGTRANG</Link>
+            <Link href="/pages/about-us" className="hover:underline">NHUNGTRANG's Vision</Link>
             <span>|</span>
             <Link href="/pages/nhung-cau-hoi-thuong-gap" className="hover:underline">FAQ</Link>
             <span>|</span>
-            <Link href="https://www.facebook.com/nhung.trang.5855594" className="hover:underline">Liên hệ qua Fanpage</Link>
+            <Link href="https://www.facebook.com/nhung.trang.5855594" className="hover:underline">Contact via Fanpage</Link>
           </p>
         </div>
       </div>

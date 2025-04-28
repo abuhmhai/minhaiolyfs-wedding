@@ -28,7 +28,7 @@ export default function SearchBar() {
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Tìm kiếm sản phẩm..."
+          placeholder="Search products..."
           className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button

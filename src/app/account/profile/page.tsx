@@ -50,7 +50,7 @@ export default function ProfilePage() {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
-        setMessage('Có lỗi xảy ra khi tải thông tin tài khoản');
+        setMessage('An error occurred while loading account information');
       } finally {
         setIsLoading(false);
       }
@@ -70,13 +70,13 @@ export default function ProfilePage() {
     try {
       // Validate form data
       if (!formData.fullName.trim()) {
-        throw new Error('Vui lòng nhập họ và tên');
+        throw new Error('Please enter your full name');
       }
       if (!formData.email.trim()) {
-        throw new Error('Vui lòng nhập email');
+        throw new Error('Please enter your email');
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        throw new Error('Email không hợp lệ');
+        throw new Error('Invalid email format');
       }
 
       const response = await fetch('/api/auth/update-profile', {
@@ -90,7 +90,7 @@ export default function ProfilePage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Cập nhật thất bại');
+        throw new Error(data.message || 'Update failed');
       }
 
       // Update session with new user data
@@ -103,10 +103,10 @@ export default function ProfilePage() {
       });
 
       setIsEditing(false);
-      setMessage('Cập nhật thành công');
+      setMessage('Update successful');
     } catch (err) {
       console.error('Update error:', err);
-      setMessage(err instanceof Error ? err.message : 'Cập nhật thất bại');
+      setMessage(err instanceof Error ? err.message : 'Update failed');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,11 +143,11 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Lỗi</CardTitle>
-            <CardDescription>Vui lòng đăng nhập để xem thông tin tài khoản</CardDescription>
+            <CardTitle>Error</CardTitle>
+            <CardDescription>Please login to view your account information</CardDescription>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <Button onClick={() => router.push('/login')}>Đăng nhập</Button>
+            <Button onClick={() => router.push('/login')}>Login</Button>
           </CardContent>
         </Card>
       </div>
@@ -159,16 +159,16 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto">
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Thông tin tài khoản</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Account Information</CardTitle>
             <CardDescription className="text-center">
-              Quản lý thông tin cá nhân của bạn
+              Manage your personal information
             </CardDescription>
           </CardHeader>
           
           <CardContent>
             {message && (
               <div className={`mb-4 p-3 rounded ${
-                message.includes('thành công') 
+                message.includes('successful') 
                   ? 'bg-green-100 text-green-700' 
                   : 'bg-red-100 text-red-700'
               }`}>
@@ -180,7 +180,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label htmlFor="fullName" className="text-sm font-medium">
-                    Họ và tên
+                    Full Name
                   </label>
                   <Input
                     id="fullName"
@@ -188,7 +188,7 @@ export default function ProfilePage() {
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     disabled={!isEditing || isSubmitting}
-                    placeholder="Nhập họ và tên của bạn"
+                    placeholder="Enter your full name"
                     className="w-full"
                   />
                 </div>
@@ -203,14 +203,14 @@ export default function ProfilePage() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     disabled={!isEditing || isSubmitting}
-                    placeholder="Nhập email của bạn"
+                    placeholder="Enter your email"
                     className="w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label htmlFor="phone" className="text-sm font-medium">
-                    Số điện thoại
+                    Phone Number
                   </label>
                   <Input
                     id="phone"
@@ -218,14 +218,14 @@ export default function ProfilePage() {
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     disabled={!isEditing || isSubmitting}
-                    placeholder="Nhập số điện thoại của bạn"
+                    placeholder="Enter your phone number"
                     className="w-full"
                   />
                 </div>
 
                 <div className="space-y-2">
                   <label htmlFor="address" className="text-sm font-medium">
-                    Địa chỉ
+                    Address
                   </label>
                   <Input
                     id="address"
@@ -233,7 +233,7 @@ export default function ProfilePage() {
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     disabled={!isEditing || isSubmitting}
-                    placeholder="Nhập địa chỉ của bạn"
+                    placeholder="Enter your address"
                     className="w-full"
                   />
                 </div>
@@ -246,7 +246,7 @@ export default function ProfilePage() {
                     onClick={handleEditClick}
                     className="w-full bg-amber-800 hover:bg-amber-900"
                   >
-                    Chỉnh sửa thông tin
+                    Edit Information
                   </Button>
                 ) : (
                   <>
@@ -255,7 +255,7 @@ export default function ProfilePage() {
                       disabled={isSubmitting}
                       className="w-full bg-amber-800 hover:bg-amber-900"
                     >
-                      {isSubmitting ? 'Đang cập nhật...' : 'Lưu thay đổi'}
+                      {isSubmitting ? 'Updating...' : 'Save Changes'}
                     </Button>
                     <Button
                       type="button"
@@ -263,7 +263,7 @@ export default function ProfilePage() {
                       variant="outline"
                       className="w-full"
                     >
-                      Hủy
+                      Cancel
                     </Button>
                   </>
                 )}

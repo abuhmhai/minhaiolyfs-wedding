@@ -13,17 +13,17 @@ function PaymentSuccessContent() {
     const orderId = searchParams.get('orderId');
 
     if (!orderId) {
-      toast.error('Không tìm thấy thông tin đơn hàng');
+      toast.error('Order information not found');
       router.push('/cart');
       return;
     }
 
     if (resultCode === '0') {
-      toast.success('Thanh toán thành công!');
+      toast.success('Payment successful!');
       // Redirect to order details page
       router.push(`/account/orders/${orderId}`);
     } else {
-      toast.error('Thanh toán thất bại. Vui lòng thử lại.');
+      toast.error('Payment failed. Please try again.');
       router.push('/cart');
     }
   }, [searchParams, router]);
@@ -31,8 +31,8 @@ function PaymentSuccessContent() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">Đang xử lý thanh toán...</h1>
-        <p className="text-gray-600">Vui lòng đợi trong giây lát.</p>
+        <h1 className="text-2xl font-bold mb-4">Processing payment...</h1>
+        <p className="text-gray-600">Please wait a moment.</p>
       </div>
     </div>
   );

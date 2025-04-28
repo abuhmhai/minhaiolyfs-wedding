@@ -51,20 +51,20 @@ const Collections = () => {
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
               <Link href="/" className="text-gray-700 hover:text-gray-900">
-                Trang chủ
+                Home
               </Link>
             </li>
             <li>
               <div className="flex items-center">
                 <span className="mx-2 text-gray-400">/</span>
-                <span className="text-gray-500">Danh mục</span>
+                <span className="text-gray-500">Categories</span>
               </div>
             </li>
           </ol>
         </nav>
       </div>
 
-      <h1 className="text-3xl font-light text-center mb-10">BỘ SƯU TẬP</h1>
+      <h1 className="text-3xl font-light text-center mb-10">COLLECTIONS</h1>
 
       {/* Collections Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -84,7 +84,7 @@ const Collections = () => {
               />
               <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <div className="text-white text-center px-4">
-                  <span className="font-medium">Xem bộ sưu tập</span>
+                  <span className="font-medium">View Collection</span>
                 </div>
               </div>
             </div>
