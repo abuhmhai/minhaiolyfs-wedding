@@ -236,8 +236,18 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
             />
 
             {rentalStartDate && (
-              <div className="text-sm text-gray-600">
-                Rental date: {rentalStartDate.toLocaleDateString('en-US')}
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">
+                  Rental date: {rentalStartDate.toLocaleDateString('en-US')}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDatesSelected(null, null)}
+                  className="text-xs"
+                >
+                  Clear
+                </Button>
               </div>
             )}
 

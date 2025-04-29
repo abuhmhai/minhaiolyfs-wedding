@@ -180,7 +180,7 @@ const AoCuoiCollection = () => {
         {/* Filters sidebar */}
         <div className={`md:w-1/4 ${mobileFilterOpen ? 'block' : 'hidden md:block'}`}>
           <div className="border border-gray-200 p-4 rounded-md">
-            <h2 className="font-medium text-lg mb-4">Lọc sản phẩm</h2>
+            <h2 className="font-medium text-lg mb-4">Filter Products            </h2>
 
             {/* Style filter */}
             <div className="mb-4">
@@ -188,7 +188,7 @@ const AoCuoiCollection = () => {
                 className="flex items-center justify-between cursor-pointer py-2"
                 onClick={() => toggleFilter('style')}
               >
-                <h3 className="font-medium">Kiểu dáng</h3>
+                <h3 className="font-medium">Style</h3>
                 {expandedFilters.includes('style') ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -237,7 +237,7 @@ const AoCuoiCollection = () => {
                 className="flex items-center justify-between cursor-pointer py-2"
                 onClick={() => toggleFilter('color')}
               >
-                <h3 className="font-medium">Màu sắc</h3>
+                <h3 className="font-medium">Color</h3>
                 {expandedFilters.includes('color') ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -286,7 +286,7 @@ const AoCuoiCollection = () => {
                 className="flex items-center justify-between cursor-pointer py-2"
                 onClick={() => toggleFilter('price')}
               >
-                <h3 className="font-medium">Giá sản phẩm</h3>
+                <h3 className="font-medium">Price Range</h3>
                 {expandedFilters.includes('price') ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -322,7 +322,7 @@ const AoCuoiCollection = () => {
                 setPriceRange([500000, 80000000]);
               }}
             >
-              Clear All
+              Clear All Filters
             </Button>
           </div>
         </div>
@@ -334,7 +334,7 @@ const AoCuoiCollection = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Tìm kiếm áo cưới..."
+                  placeholder="Search wedding dresses..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                   value={searchTerm}
                   onChange={handleSearch}

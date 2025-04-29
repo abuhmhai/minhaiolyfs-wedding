@@ -28,7 +28,7 @@ export default function RentalDatePicker({ onDatesSelected, isDisabled = false }
     <div className="space-y-4">
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">
-          Chọn ngày thuê
+          Select rental date
         </label>
         <div className="flex items-center gap-2">
           <DatePicker
@@ -39,23 +39,12 @@ export default function RentalDatePicker({ onDatesSelected, isDisabled = false }
             disabled={isDisabled}
             className="border border-gray-300 rounded-md p-2 w-full"
             dateFormat="dd/MM/yyyy"
-            placeholderText="Chọn ngày thuê"
+            placeholderText="Select rental date"
           />
         </div>
       </div>
       {selectedDate && (
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">
-            Ngày thuê: {selectedDate.toLocaleDateString('vi-VN')}
-          </span>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={clearDate}
-            className="text-xs"
-          >
-            Xóa
-          </Button>
         </div>
       )}
     </div>

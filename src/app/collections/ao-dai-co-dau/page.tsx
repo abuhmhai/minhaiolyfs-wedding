@@ -18,18 +18,20 @@ interface AoDaiProduct {
   createdAt: Date;
 }
 
-type FilterCategory = 'color' | 'price';
+type FilterCategory = 'style' | 'color' | 'price';
 
 const AoDaiCollection = () => {
-  const [expandedFilters, setExpandedFilters] = useState<FilterCategory[]>(['color', 'price']);
+  const [expandedFilters, setExpandedFilters] = useState<FilterCategory[]>(['style', 'color', 'price']);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [selectedStyle, setSelectedStyle] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([500000, 80000000]);
   const [sortOrder, setSortOrder] = useState<string>('featured');
   const [products, setProducts] = useState<AoDaiProduct[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   console.log('Initial filter states:', {
+    selectedStyle,
     selectedColor,
     priceRange,
     sortOrder,
@@ -162,7 +164,7 @@ const AoDaiCollection = () => {
         {/* Filters sidebar */}
         <div className={`md:w-1/4 ${mobileFilterOpen ? 'block' : 'hidden md:block'}`}>
           <div className="border border-gray-200 p-4 rounded-md">
-            <h2 className="font-medium text-lg mb-4">Lọc sản phẩm</h2>
+            <h2 className="font-medium text-lg mb-4">Filter Products            </h2>
 
             {/* Color filter */}
             <div className="mb-4">
@@ -170,7 +172,7 @@ const AoDaiCollection = () => {
                 className="flex items-center justify-between cursor-pointer py-2"
                 onClick={() => toggleFilter('color')}
               >
-                <h3 className="font-medium">Màu sắc</h3>
+                <h3 className="font-medium">Color</h3>
                 {expandedFilters.includes('color') ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -223,12 +225,12 @@ const AoDaiCollection = () => {
             </div>
 
             {/* Price filter */}
-            <div>
+            <div className="mb-4">
               <div
                 className="flex items-center justify-between cursor-pointer py-2"
                 onClick={() => toggleFilter('price')}
               >
-                <h3 className="font-medium">Giá</h3>
+                <h3 className="font-medium">Price Range</h3>
                 {expandedFilters.includes('price') ? (
                   <ChevronUp className="h-4 w-4" />
                 ) : (
@@ -236,25 +238,36 @@ const AoDaiCollection = () => {
                 )}
               </div>
               {expandedFilters.includes('price') && (
-                <div className="pl-2 mt-2 space-y-2">
-                  <div className="flex items-center">
-                    <input
-                      type="range"
-                      min="0"
-                      max="20000000"
-                      step="500000"
-                      value={priceRange[0]}
-                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                      className="w-full"
-                    />
+                <div className="pl-2 mt-2 space-y-4">
+                  <div className="flex justify-between">
+                    <span>{priceRange[0].toLocaleString()}₫</span>
+                    <span>{priceRange[1].toLocaleString()}₫</span>
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>{priceRange[0].toLocaleString('vi-VN')}₫</span>
-                    <span>{priceRange[1].toLocaleString('vi-VN')}₫</span>
-                  </div>
+                  <input
+                    type="range"
+                    min="500000"
+                    max="80000000"
+                    step="1000000"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    className="w-full"
+                  />
                 </div>
               )}
             </div>
+
+            {/* Clear filters button */}
+            <Button
+              variant="outline"
+              className="w-full mt-4"
+              onClick={() => {
+                setSelectedStyle(null);
+                setSelectedColor(null);
+                setPriceRange([500000, 80000000]);
+              }}
+            >
+              Clear All Filters
+            </Button>
           </div>
         </div>
 
@@ -265,7 +278,7 @@ const AoDaiCollection = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Tìm kiếm áo dài..."
+                  placeholder="Search traditional dresses..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                   value={searchTerm}
                   onChange={handleSearch}
@@ -275,13 +288,13 @@ const AoDaiCollection = () => {
             </div>
             <Select value={sortOrder} onValueChange={setSortOrder}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sắp xếp theo" />
+                <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="featured">Mặc định</SelectItem>
-                <SelectItem value="price-asc">Giá: Thấp đến cao</SelectItem>
-                <SelectItem value="price-desc">Giá: Cao đến thấp</SelectItem>
-                <SelectItem value="newest">Mới nhất</SelectItem>
+                <SelectItem value="featured">Featured</SelectItem>
+                <SelectItem value="price-asc">Price: Low to High</SelectItem>
+                <SelectItem value="price-desc">Price: High to Low</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
               </SelectContent>
             </Select>
           </div>
