@@ -27,29 +27,14 @@ const Header = () => {
       localStorage.clear();
       sessionStorage.clear();
       
-      // Delete all cookies with specific domains
-      const domains = ['.vercel.app', 'minhaiolyfs-wedding.vercel.app', window.location.hostname];
-      const paths = ['/', '/api'];
-      
-      domains.forEach(domain => {
-        paths.forEach(path => {
-          document.cookie = `next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
-          document.cookie = `next-auth.callback-url=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
-          document.cookie = `next-auth.csrf-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
-        });
-      });
-      
       // Sign out with NextAuth
       await signOut({ 
-        redirect: false,
+        redirect: true,
         callbackUrl: '/'
       });
-      
-      // Force a complete page reload to ensure all session data is cleared
-      window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Even if there's an error, we should still try to clear the session
+      // If there's an error, force redirect to home
       window.location.href = '/';
     }
   };
