@@ -66,8 +66,22 @@ export default function CartPage() {
   };
 
   const handleRemoveItem = async (productId: number) => {
-    await removeItem(productId);
-    toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    try {
+      await removeItem(productId);
+      toast.success("Đã xóa sản phẩm khỏi giỏ hàng");
+    } catch (error) {
+      console.error("Error removing item:", error);
+      if (error instanceof Error) {
+        if (error.message.includes('login')) {
+          toast.error("Vui lòng đăng nhập để xóa sản phẩm");
+          router.push('/login');
+        } else {
+          toast.error(error.message || "Không thể xóa sản phẩm khỏi giỏ hàng");
+        }
+      } else {
+        toast.error("Không thể xóa sản phẩm khỏi giỏ hàng");
+      }
+    }
   };
 
   const handleImageError = (itemId: number) => {

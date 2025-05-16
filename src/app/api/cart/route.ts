@@ -168,11 +168,11 @@ export async function DELETE(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const itemId = searchParams.get('itemId');
+    const productId = searchParams.get('productId');
 
-    if (!itemId) {
+    if (!productId) {
       return NextResponse.json(
-        { error: "Item ID is required" },
+        { error: "Product ID is required" },
         { status: 400 }
       );
     }
@@ -190,10 +190,24 @@ export async function DELETE(request: Request) {
       );
     }
 
+    // Find and delete the cart item with matching productId
+    const cartItem = await prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        productId: parseInt(productId)
+      }
+    });
+
+    if (!cartItem) {
+      return NextResponse.json(
+        { error: "Item not found in cart" },
+        { status: 404 }
+      );
+    }
+
     await prisma.cartItem.delete({
       where: {
-        id: parseInt(itemId),
-        cartId: cart.id
+        id: cartItem.id
       }
     });
 
@@ -219,11 +233,11 @@ export async function PUT(request: Request) {
     }
 
     const body = await request.json();
-    const { itemId, quantity } = body;
+    const { productId, quantity } = body;
 
-    if (!itemId || !quantity) {
+    if (!productId || !quantity) {
       return NextResponse.json(
-        { error: "Item ID and quantity are required" },
+        { error: "Product ID and quantity are required" },
         { status: 400 }
       );
     }
@@ -241,10 +255,24 @@ export async function PUT(request: Request) {
       );
     }
 
+    // Find the cart item by productId
+    const cartItem = await prisma.cartItem.findFirst({
+      where: {
+        cartId: cart.id,
+        productId: parseInt(productId)
+      }
+    });
+
+    if (!cartItem) {
+      return NextResponse.json(
+        { error: "Item not found in cart" },
+        { status: 404 }
+      );
+    }
+
     const updatedItem = await prisma.cartItem.update({
       where: {
-        id: parseInt(itemId),
-        cartId: cart.id
+        id: cartItem.id
       },
       data: {
         quantity

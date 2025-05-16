@@ -64,7 +64,7 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Vui lòng nhập email và mật khẩu");
         }
 
         const user = await prisma.user.findUnique({
@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          return null;
+          throw new Error("Email không tồn tại");
         }
 
         const isPasswordValid = await compare(
@@ -83,7 +83,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!isPasswordValid) {
-          return null;
+          throw new Error("Mật khẩu không chính xác");
         }
 
         return {

@@ -18,7 +18,6 @@ import {
 interface PageParams {
   orderId: string;
 }
-
 export default function OrderDetailsPage({ params }: { params: Promise<PageParams> }) {
   const router = useRouter();
   const { data: session } = useSession();
