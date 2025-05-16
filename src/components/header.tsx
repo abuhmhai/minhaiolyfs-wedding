@@ -27,28 +27,22 @@ const Header = () => {
       localStorage.clear();
       sessionStorage.clear();
       
-      // Delete all cookies including NextAuth session cookie
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i];
-        const eqPos = cookie.indexOf("=");
-        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.vercel.app`;
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=minhaiolyfs-wedding.vercel.app`;
-        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-      }
+      // Delete all cookies
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
       
       // Sign out with NextAuth
       await signOut({ 
-        callbackUrl: '/',
-        redirect: false 
+        redirect: false,
+        callbackUrl: '/'
       });
       
-      // Force a complete page reload
+      // Force a complete page reload to ensure all session data is cleared
       window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
-      // Even if there's an error, try to redirect to home
+      // Even if there's an error, we should still try to clear the session
       window.location.href = '/';
     }
   };
