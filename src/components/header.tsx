@@ -27,9 +27,16 @@ const Header = () => {
       localStorage.clear();
       sessionStorage.clear();
       
-      // Delete all cookies
-      document.cookie.split(";").forEach(function(c) { 
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      // Delete all cookies with specific domains
+      const domains = ['.vercel.app', 'minhaiolyfs-wedding.vercel.app', window.location.hostname];
+      const paths = ['/', '/api'];
+      
+      domains.forEach(domain => {
+        paths.forEach(path => {
+          document.cookie = `next-auth.session-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
+          document.cookie = `next-auth.callback-url=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
+          document.cookie = `next-auth.csrf-token=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${path}; domain=${domain}`;
+        });
       });
       
       // Sign out with NextAuth
