@@ -47,7 +47,7 @@ export const authOptions: NextAuthOptions = {
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === 'production',
-        domain: process.env.NODE_ENV === 'production' ? '.vercel.app' : undefined,
+        domain: process.env.NODE_ENV === 'production' ? 'minhaiolyfs-wedding.vercel.app' : undefined,
         maxAge: 30 * 24 * 60 * 60 // 30 days
       }
     }
@@ -127,23 +127,7 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async signOut({ token, session }: { token: JWT | null; session: Session | null }) {
-      if (token) {
-        token.id = '';
-        token.role = 'user';
-        token.fullName = '';
-        token.phone = '';
-        token.address = '';
-      }
-      if (session) {
-        session.user = {
-          id: '',
-          email: '',
-          fullName: '',
-          role: 'user',
-          phone: '',
-          address: ''
-        };
-      }
+      // Remove the token and session clearing as it's handled automatically by NextAuth
     }
   },
   secret: process.env.NEXTAUTH_SECRET,
