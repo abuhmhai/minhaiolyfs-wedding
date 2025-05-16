@@ -23,12 +23,27 @@ const Header = () => {
 
   const handleSignOut = async () => {
     try {
+      // Clear any local storage and cookies first
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Delete all cookies
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+      
+      // Sign out with NextAuth
       await signOut({ 
         callbackUrl: '/',
         redirect: true 
       });
+      
+      // Force a complete page reload
+      window.location.href = '/';
     } catch (error) {
       console.error('Sign out error:', error);
+      // Even if there's an error, try to redirect to home
+      window.location.href = '/';
     }
   };
 
