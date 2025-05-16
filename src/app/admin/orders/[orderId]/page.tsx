@@ -88,7 +88,7 @@ export default function OrderDetailsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link href="https://minhaiolyfs-wedding-qzta-csj2r4iz2-abuhmhais-projects.vercel.app/admin/order" className="text-blue-500 hover:underline">
+        <Link href="/admin/order" className="text-blue-500 hover:underline">
           ← Back to Orders
         </Link>
       </div>
