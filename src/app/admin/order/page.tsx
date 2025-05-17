@@ -30,6 +30,8 @@ const getStatusColor = (status: OrderStatus) => {
       return 'bg-green-100 text-green-800';
     case OrderStatus.CANCELLED:
       return 'bg-red-100 text-red-800';
+    case OrderStatus.RETURNED:
+      return 'bg-orange-100 text-orange-800';
     default:
       return 'bg-gray-100 text-gray-800';
   }
@@ -47,6 +49,8 @@ const getStatusText = (status: OrderStatus) => {
       return 'Delivered';
     case OrderStatus.CANCELLED:
       return 'Cancelled';
+    case OrderStatus.RETURNED:
+      return 'Returned';
     default:
       return status;
   }
@@ -107,6 +111,28 @@ export default function AdminOrderPage() {
     } catch (error) {
       console.error('Error updating order status:', error);
       toast.error('Không thể cập nhật trạng thái đơn hàng');
+    }
+  };
+
+  const handleReturn = async (orderId: number) => {
+    try {
+      const response = await fetch(`/api/admin/orders/${orderId}/return`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to process return');
+      }
+
+      toast.success('Order returned successfully');
+      fetchOrders();
+    } catch (error) {
+      console.error('Error processing return:', error);
+      toast.error('Không thể xử lý trả hàng');
     }
   };
 
@@ -244,7 +270,15 @@ export default function AdminOrderPage() {
                       Complete
                     </button>
                   )}
-                  {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.DELIVERED && (
+                  {order.status === OrderStatus.DELIVERED && (
+                    <button
+                      onClick={() => handleReturn(order.id)}
+                      className="text-orange-600 hover:text-orange-900 mr-2"
+                    >
+                      Return
+                    </button>
+                  )}
+                  {order.status !== OrderStatus.CANCELLED && order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.RETURNED && (
                     <button
                       onClick={() => updateOrderStatus(order.id, OrderStatus.CANCELLED)}
                       className="text-red-600 hover:text-red-900"
