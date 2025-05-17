@@ -13,7 +13,7 @@ type ProductWithImages = Product & {
 };
 
 type OrderWithItems = Order & {
-  orderItems: (OrderItem & {
+  items: (OrderItem & {
     product: ProductWithImages;
   })[];
 };
@@ -216,7 +216,7 @@ export default function AdminOrderPage() {
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-900">
                   <div className="space-y-1">
-                    {order.orderItems?.map((item) => (
+                    {order.items?.map((item) => (
                       <div key={item.id} className="flex items-center gap-2">
                         <div className="w-8 h-8 relative rounded overflow-hidden">
                           {item.product.images?.[0] && (
